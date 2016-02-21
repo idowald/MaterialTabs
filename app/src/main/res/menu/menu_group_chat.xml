@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/toolbar"
+    tools:context="info.androidhive.materialtabs.activity.MessagingActivity">
+
+    <item android:id="@+id/search" android:title="@string/search"
+        android:orderInCategory="100" app:showAsAction="ifRoom"
+        android:icon="@android:drawable/ic_menu_search"/>
+    <item android:id="@+id/icon_name" android:title="@string/conversation_name_menu" android:titleCondensed="@string/conversation_name_menu"
+        android:orderInCategory="100" app:showAsAction="ifRoom"
+        android:icon="@mipmap/ic_group"
+        />
+    <item android:id="@+id/action_settings" android:title="@string/action_settings"
+        android:orderInCategory="100" app:showAsAction="never" />
+</menu>

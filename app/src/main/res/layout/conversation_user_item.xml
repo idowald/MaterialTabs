@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:layout_marginRight="10dp"
+    android:gravity="center_horizontal"
+    >
+
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="2dp"
+
+        android:layout_below="@+id/txtSender"
+        android:gravity="center"
+        android:layout_centerInParent="true"
+        android:layout_alignParentLeft="true"
+        android:padding="8dp"
+        android:background="@color/gray_message"
+        android:id="@+id/relativeLayout">
+
+
+        <TextView
+            android:id="@+id/user_name"
+            android:paddingLeft="5dp"
+            android:paddingTop="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            android:text="name"
+
+
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="5dp" />
+        <TextView
+
+            android:paddingLeft="3dp"
+            android:paddingRight="2dp"
+            android:paddingTop="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            android:text="|"
+
+
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="5dp" />
+        <TextView
+            android:id="@+id/role_name"
+            android:paddingLeft="1dp"
+            android:paddingTop="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            android:text="role name"
+
+
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="5dp" />
+
+    </LinearLayout>
+   </LinearLayout>

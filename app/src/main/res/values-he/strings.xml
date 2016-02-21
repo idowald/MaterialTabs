@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CONDOC</string>
+    <string name="action_settings">הגדרות</string>
+    <string name="hello_world">שלום עולם!</string>
+    <string name="tab1_private">שיחות אישיות</string>
+    <string name="tab2_case">תיקים</string>
+    <string name="tab3_group">שיחות מחלקתיות</string>
+    <string name="message_elipses">הודעה חדשה...</string>
+    <string name="insert_phone">נא להכניס מספר טלפון מורשה</string>
+    <string name="loginText">כניסה</string>
+    <string name="tab0_main">ראשי</string>
+    <string name="conversation_name_menu">שם שיחה</string>
+    <string name="roles">אחריות</string>
+    <string name="departments">מחלקות</string>
+    <string name="group_praticipating">משתתפים</string>
+    <string name="in_duty">במשמרת</string>
+    <string name="update">עדכן</string>
+    <string name="remarks">הערות</string>
+    <string name="created_by">נכתב ע"י</string>
+    <string name="remark_content">תוכן ההערה</string>
+    <string name="is_remark">האם קריטית?</string>
+    <string name="urgent">חשוב!</string>
+    <string name="not_urgent">לא דחוף</string>
+</resources>

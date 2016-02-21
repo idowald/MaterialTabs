@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/menutext"
+    tools:context="info.androidhive.materialtabs.activity.MainActivity">
+
+    <item android:id="@+id/search" android:title="@string/search"
+        android:orderInCategory="100" app:showAsAction="ifRoom"
+        android:icon="@android:drawable/ic_menu_search"/>
+    <item android:id="@+id/conversation_name" android:title="@string/search" android:titleCondensed="@string/search"
+        android:orderInCategory="100" app:showAsAction="ifRoom"
+        />
+    <item android:id="@+id/action_settings" android:title="@string/action_settings"
+        android:orderInCategory="100" app:showAsAction="never" />
+</menu>

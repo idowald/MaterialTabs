@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+
+        <TableRow
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+    android:paddingTop="5px"
+            android:id="@+id/remark_row">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/delete_remark_button"
+                android:layout_gravity="center_horizontal"
+                android:src="@mipmap/ic_remove_contact"
+                android:paddingLeft="5px"/>
+            <TextView
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/remark_created_by"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_gravity="center_horizontal"
+                android:hint="@string/created_by"
+                android:paddingLeft="10px"
+                android:paddingTop="15px"
+
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/remark_text"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_gravity="center_horizontal"
+                android:hint="@string/remark_content"
+                android:paddingLeft="10px"
+                android:paddingTop="15px"
+                />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/is_urgent_remark"
+                android:layout_gravity="center_horizontal"
+                android:hint="@string/is_remark"
+
+
+                android:src="@mipmap/ic_remarks_clear" />
+
+
+        </TableRow>
+
+
+
+
