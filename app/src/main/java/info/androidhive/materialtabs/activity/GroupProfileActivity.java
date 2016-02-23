@@ -25,6 +25,7 @@ import info.androidhive.materialtabs.objects.Conversation;
 import info.androidhive.materialtabs.objects.Duty;
 import info.androidhive.materialtabs.objects.User;
 import info.androidhive.materialtabs.objects.sendingObjects;
+import info.androidhive.materialtabs.util.AbstractParseObject;
 import info.androidhive.materialtabs.util.AddParseObject;
 import info.androidhive.materialtabs.util.ParseArrayListListener;
 
@@ -84,11 +85,11 @@ public class GroupProfileActivity extends AppCompatActivity {
                             for (ParseObject dutyobject : objects) {
                                 //creating duties
                                final Duty duty= new Duty(dutyobject);
-                                duty.getUser(new AddParseObject<User>() {
+                                duty.getUser(new AddParseObject() {
                                     @Override
-                                    public void AddObject(User user) {
+                                    public void AddObject(AbstractParseObject user) {
 
-                                            addReader(user, duty);
+                                            addReader((User)user, duty);
                                             readers.remove(user);
 
 

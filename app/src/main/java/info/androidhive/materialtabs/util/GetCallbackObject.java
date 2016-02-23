@@ -7,16 +7,16 @@ import com.parse.ParseObject;
 /**
  * Created by ido on 01/12/2015.
  */
-public class GetCallbackObject <T extends Parsable> implements GetCallback<ParseObject>{
+public class GetCallbackObject implements GetCallback<ParseObject>{
     /*
     this class used on an outside query that activates it.
     it's don't the logic part of saving and not quering on specific thing
 
 
      */
-   private T ParsableObject;
-    AddParseObject<T> callback =null;
-    public GetCallbackObject(T parsableObject, AddParseObject<T> callback) {
+   private AbstractParseObject ParsableObject;
+    AddParseObject callback =null;
+    public GetCallbackObject(AbstractParseObject parsableObject, AddParseObject callback) {
         this.callback= callback;
         ParsableObject = parsableObject;
 

@@ -38,7 +38,7 @@ public class SearchActivity extends AppCompatActivity {
     EditText search_Text= null;
     Button search_btn =null;
     ListView search_list= null;
-    SearchAdapter<AbstractParseObject> searchAdapter= null;
+    SearchAdapter searchAdapter= null;
     int search_max= 3;
     Integer search= search_max;
 
@@ -76,9 +76,9 @@ public class SearchActivity extends AppCompatActivity {
                             for (ParseObject object :objects){
                                 Message message= new Message(object);
 
-                                message.getConversation(new AddParseObject<Conversation>() {
+                                message.getConversation(new AddParseObject() {
                                     @Override
-                                    public void AddObject(Conversation object) {
+                                    public void AddObject(AbstractParseObject object) {
                                         searchAdapter.AddObject(object);
                                     }
                                 });
@@ -179,7 +179,7 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
         search_list= (ListView)findViewById(R.id.list_search);
-        searchAdapter = new SearchAdapter<>(current_user,this);
+        searchAdapter = new SearchAdapter(current_user,this);
         search_list.setAdapter(searchAdapter);
 
 

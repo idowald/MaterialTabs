@@ -16,9 +16,9 @@ public class GenerateFromExternalKey  implements GetCallback<ParseObject>{
      * this class helps to get messages with external key instead of object id
      */
     private Message message = null;
-    private AddParseObject<Message> CallMethod= null;
+    private AddParseObject CallMethod= null;
 
-    public GenerateFromExternalKey(Message message, AddParseObject<Message> callMethod) {
+    public GenerateFromExternalKey(Message message, AddParseObject callMethod) {
         this.message = message;
         CallMethod = callMethod;
         ParseQuery<ParseObject> query = ParseQuery.getQuery(message.getTableName()); //for class Remark it will go to Remarks

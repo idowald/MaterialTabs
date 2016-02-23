@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import info.androidhive.materialtabs.R;
 import info.androidhive.materialtabs.objects.Conversation;
 import info.androidhive.materialtabs.objects.User;
+import info.androidhive.materialtabs.util.AbstractParseObject;
 import info.androidhive.materialtabs.util.AddParseObject;
 import info.androidhive.materialtabs.util.ParseArrayListListener;
 
@@ -20,7 +21,7 @@ import info.androidhive.materialtabs.util.ParseArrayListListener;
 /**
  * Created by ido on 14/12/2015.
  */
-public class ConversationAdapter extends BaseAdapter implements AddParseObject<Conversation> {
+public class ConversationAdapter extends BaseAdapter implements AddParseObject {
     /**
      *  this class supoorts showing group and private conversations
      */
@@ -92,8 +93,8 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject<C
     }
 
     @Override
-    public void AddObject(Conversation object) {
-        this.addConversation(object);
+    public void AddObject(AbstractParseObject object) {
+        this.addConversation((Conversation) object);
     }
 
 }

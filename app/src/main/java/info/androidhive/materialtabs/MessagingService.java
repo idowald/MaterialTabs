@@ -28,6 +28,7 @@ import info.androidhive.materialtabs.activity.MessagingActivity;
 import info.androidhive.materialtabs.objects.Conversation;
 import info.androidhive.materialtabs.objects.Message;
 import info.androidhive.materialtabs.objects.User;
+import info.androidhive.materialtabs.util.AbstractParseObject;
 import info.androidhive.materialtabs.util.AddParseObject;
 
 
@@ -74,7 +75,7 @@ public class MessagingService extends IntentService{
 
         super.onCreate();
         Myusername = getSharedPreferences("userdetails", MODE_PRIVATE).getString("username","");
-        AddParseObject<User> callback =null;
+        AddParseObject callback =null;
         my_user = new User("","",Myusername,callback );
         broadcast=  LocalBroadcastManager.getInstance(this);
 
@@ -214,7 +215,7 @@ public class MessagingService extends IntentService{
 
     }
 
-    class NotifyCallback implements AddParseObject<User> {
+    class NotifyCallback implements AddParseObject {
 
 
         PendingIntent resultPendingIntent;
@@ -227,7 +228,7 @@ public class MessagingService extends IntentService{
         }
 
         @Override
-        public void AddObject(User user) {
+        public void AddObject(AbstractParseObject user) {
             String notificationText = user + ": " + MessageText;
             Notification myNotification = new NotificationCompat.Builder(getApplicationContext())
                     .setContentTitle("CONDOC new message")

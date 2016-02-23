@@ -9,19 +9,19 @@ import com.parse.SaveCallback;
 /**
  * Created by ido on 29/12/2015.
  */
-public class SaveInBackgroundByKey<T extends Parsable> implements SaveCallback,GetCallback<ParseObject> {
-    T object = null;
+public class SaveInBackgroundByKey implements SaveCallback,GetCallback<ParseObject> {
+    AbstractParseObject object = null;
     ParseObject parseObject= null;
     String primary_key= null;
     String value= null;
-    AddParseObject<T> callback = null;
+    AddParseObject callback = null;
 
-    public SaveInBackgroundByKey( T parsableObject, String key) {
+    public SaveInBackgroundByKey( AbstractParseObject parsableObject, String key) {
         this(parsableObject,key, null);
     }
 
 
-    public SaveInBackgroundByKey( T parsableObject, String key, AddParseObject<T> callback) {
+    public SaveInBackgroundByKey( AbstractParseObject parsableObject, String key, AddParseObject callback) {
         primary_key = key;
         this.callback = callback;
         this.parseObject = parsableObject.ToParseObject();

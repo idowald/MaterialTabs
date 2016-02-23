@@ -30,9 +30,9 @@ public class User extends AbstractParseObject{
 
 
 
-    public User(String userObjectId, AddParseObject<User> callback){
+    public User(String userObjectId, AddParseObject callback){
         this.userObjectId = userObjectId;
-        new GenerateFromObjectId<User>(this,callback);
+        new GenerateFromObjectId(this,callback);
     }
     public User(String firstName, String lastName, String userName, String userObjectId) {
         this.firstName = firstName;
@@ -54,7 +54,7 @@ public class User extends AbstractParseObject{
             this(user.getString("fromFirstName"),user.getString("fromLastName"),user.getString("fromUserName"), user.getString("fromObjectId"));
 
     }
-    public User(ParseObject parseObject, AddParseObject<User> callback){
+    public User(ParseObject parseObject, AddParseObject callback){
 
             new fetchIfNeededInBackgroundRelational(this, parseObject,callback);
 
@@ -86,7 +86,7 @@ public User(ParseObject parseObject){
     @Override
     public void CreateAndSaveNewParseObject() {
 
-            new SaveInBackgroundByKey<User>(this,"userName");
+            new SaveInBackgroundByKey(this,"userName");
     }
 
     @Override
@@ -136,5 +136,10 @@ public User(ParseObject parseObject){
     @Override
     public String getTableName() {
         return this.getClass().getSimpleName()+"s";
+    }
+
+    @Override
+    public void informWaiters() {
+
     }
 }

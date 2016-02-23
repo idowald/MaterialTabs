@@ -2,6 +2,7 @@ package info.androidhive.materialtabs.objects;
 
 import com.parse.ParseObject;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import info.androidhive.materialtabs.util.AbstractParseObject;
@@ -22,29 +23,36 @@ public class Remark extends AbstractParseObject {
      */
 private String remarkObjectId=null;
 protected ParseObject userParseObject= null;
-private User user=null;
+private User user=null; //creator
+    protected ArrayList<AddParseObject> callbacks_user = new ArrayList<>();
 private String text="";
 private boolean isUrgent=false;
+    protected ParseObject caseParseObject= null;
+    private Case remark_case= null;
+    protected ArrayList<AddParseObject> listeners_case= new ArrayList<>();
+
 private Date date= new Date();
 
-    public Remark(String remarkObjectId, AddParseObject<Remark> callback){
+    public Remark(String remarkObjectId, AddParseObject callback){
         this.remarkObjectId = remarkObjectId;
-        new GenerateFromObjectId<Remark>(this,callback);
+        new GenerateFromObjectId(this,callback);
 
     }
-    public Remark(ParseObject parseObject, AddParseObject<Remark> callback){
+    public Remark(ParseObject parseObject, AddParseObject callback){
         new fetchIfNeededInBackgroundRelational(this, parseObject,callback);
 
     }
     public  Remark(ParseObject parseObject){ //fast instance
         this.GenerateFromParseObject(parseObject);
     }
-    public Remark(User user, String text, boolean isUrgent, Date date) {
+    public Remark(User user,Case remark_case, String text, boolean isUrgent, Date date) {
         this.user = user;
         this.text = text;
         this.isUrgent = isUrgent;
         this.date = date;
+        this.remark_case=remark_case;
     }
+
 
     @Override
     public ParseObject ToParseObject() {
@@ -61,8 +69,16 @@ private Date date= new Date();
             object.put("user",userParseObject);
         else
             object.put("user", user.ToParseObject());
+
+        if (caseParseObject != null)
+            object.put("case",caseParseObject);
+        else
+            object.put("case", remark_case.ToParseObject());
+
         object.put("isUrgent",isUrgent);
         object.put("text",text);
+
+
         return object;
     }
 
@@ -86,6 +102,23 @@ private Date date= new Date();
     public void GenerateFromParseObject(ParseObject parseObject) {
         remarkObjectId= parseObject.getObjectId();
         userParseObject = parseObject.getParseObject("user");
+
+        new User(userParseObject, new AddParseObject() {
+            @Override
+            public void AddObject(AbstractParseObject object) {
+                user= (User) object;
+                informWaiters();
+            }
+        });
+
+        caseParseObject= parseObject.getParseObject("case");
+        new Case(caseParseObject, new AddParseObject() {
+            @Override
+            public void AddObject(AbstractParseObject object) {
+                remark_case= (Case) object;
+                informWaiters();
+            }
+        });
         isUrgent =  parseObject.getBoolean("isUrgent");
         text= parseObject.getString("text");
         date =parseObject.getCreatedAt();
@@ -97,11 +130,20 @@ private Date date= new Date();
 
     }
 
-    public void getUser(AddParseObject<User> callback) {
+    public void getUser(AddParseObject callback) {
         if (user == null)
-            user = new User(userParseObject , callback);
+            callbacks_user.add(callback);
         else
             callback.AddObject(user);
+    }
+    public void getCase(AddParseObject callback){
+        if (remark_case == null)
+            listeners_case.add(callback);
+        else
+            callback.AddObject(remark_case);
+    }
+    public void setCase(Case remark_case){
+        this.remark_case= remark_case;
     }
 
     public void setUser(User user) {
@@ -127,5 +169,24 @@ private Date date= new Date();
 
     public void setUrgent(boolean urgent) {
         isUrgent = urgent;
+    }
+
+    @Override
+    public void informWaiters() {
+
+        if (user!= null) {
+            for (AddParseObject callback : callbacks_user ) {
+                callback.AddObject(user);
+            }
+            callbacks_user.clear();
+        }
+
+        if (remark_case != null){
+            for (AddParseObject callback : listeners_case){
+                callback.AddObject(remark_case);
+            }
+            listeners_case.clear();
+        }
+
     }
 }

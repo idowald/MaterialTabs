@@ -28,5 +28,5 @@ this abstarct class define that each item is compared by object id
         }
         return 0;
     }
-    abstract informWaiters
+    abstract public void informWaiters();
 }

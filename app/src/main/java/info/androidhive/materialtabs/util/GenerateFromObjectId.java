@@ -8,24 +8,18 @@ import com.parse.ParseQuery;
 /**
  * Created by ido on 02/12/2015.
  */
-public class GenerateFromObjectId <T extends Parsable> implements GetCallback<ParseObject> {
+public class GenerateFromObjectId  implements GetCallback<ParseObject> {
     /*
   utility i've created.
   give your DB table name and i'll create your object from objectid
   first locate it in localdrive, if exist or not, afterwards lookup in the DB for a refreshed version!
    */
-    private T object;
+    private AbstractParseObject object;
 
-    private AddParseObject<T> CallMethod= null;
-
-    public GenerateFromObjectId(T object) {
-
-        this.object = object;
+    private AddParseObject CallMethod= null;
 
 
-    }
-
-    public GenerateFromObjectId(T object,  AddParseObject<T> callMethod) {
+    public GenerateFromObjectId(AbstractParseObject object,  AddParseObject callMethod) {
         this.object = object;
 
         CallMethod = callMethod;

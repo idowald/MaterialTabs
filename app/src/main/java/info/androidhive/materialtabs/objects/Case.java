@@ -21,7 +21,7 @@ import info.androidhive.materialtabs.util.fetchIfNeededInBackgroundRelational;
 /**
  * Created by ido on 01/12/2015.
  */
-public class Case extends AbstractParseObject implements AddParseObjects{
+public class Case extends AbstractParseObject {
     /*
     each case reo=present a patient's conversation
      */
@@ -33,23 +33,25 @@ public class Case extends AbstractParseObject implements AddParseObjects{
     private String first_name="";
     private String last_name= "";
 
-
-    protected int sizeOfRemarks = -1;
-    protected  ArrayList<ParseArrayListListener<Remark>> callbacks= new ArrayList<ParseArrayListListener<Remark>>(); //helps to get "remarks" with mvc model
-    private ArrayList<Remark> remarks= new ArrayList<Remark>();// one to many
     private String information="";
 
-    protected ParseObject converParseObject =null; // one to one
+   // protected int sizeOfRemarks = -1;
+    //protected  ArrayList<ParseArrayListListener<Remark>> callbacks_remarks= new ArrayList<ParseArrayListListener<Remark>>(); //helps to get "remarks" with mvc model
+    //private ArrayList<Remark> remarks= new ArrayList<Remark>();// one to many
+
+
+    protected ParseObject conversation_object= null;
+    protected  ArrayList<AddParseObject> callbacks_conversation = new ArrayList<>();
     private Conversation conversation = null;
 
-    public Case(String CaseObjectId,AddParseObject<Case> callback){
+    public Case(String CaseObjectId,AddParseObject callback){
 
         this.caseObjectId = CaseObjectId;
-        new GenerateFromObjectId<>(this,callback);
+        new GenerateFromObjectId(this,callback);
 
     }
 
-    public Case(ParseObject object , AddParseObject<Case> callback){ //this is called when created by relation query
+    public Case(ParseObject object , AddParseObject callback){ //this is called when created by relation query
             new fetchIfNeededInBackgroundRelational(this, object, callback);
     }
     public Case(ParseObject object){ //this is called when creating case from a straight query.
@@ -86,19 +88,19 @@ public class Case extends AbstractParseObject implements AddParseObjects{
             object = new ParseObject(this.getTableName());
         }
 
-        if (converParseObject != null)
-            object.put("conversation", converParseObject);
+        if (conversation==null)
+            object.put("conversation", conversation_object);
         else
-           object.put("conversation", conversation.ToParseObject());
+            object.put("conversation", ParseObject.createWithoutData(conversation.getTableName(), conversation.GetObjectId()));
         object.put("information",information );
         object.put("gender",gender);
         object.put("age",age);
         object.put("first_name",first_name);
         object.put("last_name",last_name);
 
-        ParseRelation<ParseObject> remarks = object.getRelation("Remarks");
-        for (Remark remark: this.remarks)
-            remarks.add(remark.ToParseObject());
+       // ParseRelation<ParseObject> remarks = object.getRelation("Remarks");
+        //for (Remark remark: this.remarks)
+          //  remarks.add(remark.ToParseObject());
 
 
         return object;
@@ -118,18 +120,16 @@ public class Case extends AbstractParseObject implements AddParseObjects{
 
     }
 
-    public void getRemarks( ParseArrayListListener<Remark> callback) {
+/*    public void getRemarks( ParseArrayListListener<Remark> callback) {
         if (sizeOfRemarks==remarks.size())
             callback.AddList(remarks);
         else{
-            this.callbacks.add(callback);
+            this.callbacks_remarks.add(callback);
         }
         //return remarks;
-    }
+    }*/
 
-    public void setRemarks(ArrayList<Remark> remarks) {
-        this.remarks = remarks;
-    }
+
 
     public String getInformation() {
         return information;
@@ -143,14 +143,14 @@ public class Case extends AbstractParseObject implements AddParseObjects{
         return caseObjectId;
     }
 
-    @Override
+   /* @Override
     public void NumberOfElements(int number) {
         sizeOfRemarks = number;
         if (number == 0)
         {
-            for (ParseArrayListListener listener : callbacks)
+            for (ParseArrayListListener listener : callbacks_remarks)
                 listener.AddList(remarks);
-            callbacks.clear();
+            callbacks_remarks.clear();
         }
 
     }
@@ -158,28 +158,38 @@ public class Case extends AbstractParseObject implements AddParseObjects{
     public void AddObject(ParseObject object) {
         remarks.add(new Remark(object));
         if (sizeOfRemarks == remarks.size()) {
-            for (ParseArrayListListener listener : callbacks)
+            for (ParseArrayListListener listener : callbacks_remarks)
                 listener.AddList(remarks);
-            callbacks.clear();
+            callbacks_remarks.clear();
         }
-    }
+    }*/
 
     @Override
     public void GenerateFromParseObject(ParseObject parseObject) {
+        AddParseObject getConversation= new AddParseObject() {
+            @Override
+            public void AddObject(AbstractParseObject object) {
+                conversation= (Conversation) object;
+                informWaiters();
+            }
+        };
+
         caseObjectId = parseObject.getObjectId();
         information = parseObject.getString("information");
         gender = parseObject.getString("gender");
         age = parseObject.getDate("age");
-        converParseObject = parseObject.getParseObject("conversation");
+
+        conversation_object= parseObject.getParseObject("conversation") ;
+       new Conversation(parseObject.getParseObject("conversation"),getConversation ) ;
         first_name= parseObject.getString("first_name");
         last_name= parseObject.getString("last_name");
 
 
         //retrieving "remarks"
-        ParseQuery<ParseObject> queryremarks = parseObject.getRelation("Remarks").getQuery();
+       // ParseQuery<ParseObject> queryremarks = parseObject.getRelation("Remarks").getQuery();
         //next method- when it finished getting the relational data it notify anyone who's interested
 
-        queryremarks.findInBackground(new FindCallbackObjects(this ));
+        //queryremarks.findInBackground(new FindCallbackObjects(this ));
     }
 
     @Override
@@ -196,11 +206,11 @@ public class Case extends AbstractParseObject implements AddParseObjects{
         return this.getClass().getSimpleName()+"s";
     }
 
-    public void getConversation(AddParseObject<Conversation> callback) {
-        if (conversation == null)
-            conversation= new Conversation(converParseObject, callback);
-        else
+    public void getConversation(AddParseObject callback) {
+        if (conversation != null)
             callback.AddObject(conversation);
+        else
+            callbacks_conversation.add(callback);
     }
 
     public String getFirst_name() {
@@ -244,5 +254,25 @@ public class Case extends AbstractParseObject implements AddParseObjects{
 
     public void setConversation(Conversation conversation) {
         this.conversation = conversation;
+    }
+
+    @Override
+    public void informWaiters() {
+/*
+
+        if (remarks != null)
+        {
+            for (ParseArrayListListener<Remark> parsable : callbacks_remarks){
+                parsable.AddList(remarks);
+            }
+            callbacks_remarks.clear();
+        }
+*/
+
+        if (conversation!= null)
+            for (AddParseObject callback: callbacks_conversation){
+
+            }
+        callbacks_conversation.clear();
     }
 }

@@ -298,7 +298,7 @@ public class NewCaseActivity extends AppCompatActivity {
                     conversation.setReaders(new ArrayList<User>(readers)); //setting the conversation to be with the readers
                     conversation.CreateAndSaveNewParseObject(new AddParseObject() {
                         @Override
-                        public void AddObject(Parsable object) {
+                        public void AddObject(AbstractParseObject object) {
                             my_case.setConversation(conversation);
                             my_case.CreateAndSaveNewParseObject();
                         }
@@ -337,10 +337,10 @@ public class NewCaseActivity extends AppCompatActivity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            my_case.getConversation(new AddParseObject<Conversation>() {
+            my_case.getConversation(new AddParseObject() {
                 @Override
-                public void AddObject(Conversation object) {
-                    conversation = object;
+                public void AddObject(AbstractParseObject object) {
+                    conversation = (Conversation ) object;
                     conversation.getReaders(new ParseArrayListListener<User>() {
                         @Override
                         public void AddList(ArrayList<User> array) {

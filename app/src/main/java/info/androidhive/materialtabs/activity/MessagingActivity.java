@@ -21,6 +21,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -36,6 +38,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -50,6 +53,7 @@ import info.androidhive.materialtabs.objects.Message;
 import info.androidhive.materialtabs.objects.Remark;
 import info.androidhive.materialtabs.objects.User;
 import info.androidhive.materialtabs.objects.sendingObjects;
+import info.androidhive.materialtabs.util.AbstractParseObject;
 import info.androidhive.materialtabs.util.AddParseObject;
 import info.androidhive.materialtabs.util.AddParseObjects;
 import info.androidhive.materialtabs.util.ParseArrayListListener;
@@ -170,11 +174,12 @@ public class MessagingActivity extends AppCompatActivity {
 
                     for (ParseObject message : messages) {
                         final Message newMessage = new Message(message);
-                        AddParseObject<User> users = new AddParseObject<User>() {
+                        AddParseObject users = new AddParseObject() {
                             @Override
-                            public void AddObject(User object) {
-                                newMessage.fromUserName = object.getUserName();
-                                messageAdapter.addMessage(newMessage, object);
+                            public void AddObject(AbstractParseObject object) {
+                                User user = (User) object;
+                                newMessage.fromUserName = user.getUserName();
+                                messageAdapter.addMessage(newMessage, user);
 
                             }
                         };
@@ -319,8 +324,33 @@ public class MessagingActivity extends AppCompatActivity {
                @Override
                public void done(ParseObject object, ParseException e) {
                    if (e == null) {
-                       MyCase = new Case(object);
-                       MyCase.getRemarks(new getRemarks());
+                       MyCase = new Case(object, new AddParseObject() {
+                           @Override
+                           public void AddObject(AbstractParseObject object) {
+
+                               ParseQuery<ParseObject> query_remarks= new ParseQuery<ParseObject>("Remarks");
+                               query_remarks.whereEqualTo("case",MyCase.ToParseObject());
+                               query_remarks.findInBackground(new FindCallback<ParseObject>() {
+                                   @Override
+                                   public void done(List<ParseObject> objects, ParseException e) {
+                                       if (e== null)
+                                       {
+
+                                           getRemarks getRemarks= new getRemarks();
+                                           getRemarks.setSize(objects.size());
+                                           for (ParseObject object: objects){
+                                                new Remark(object,getRemarks);
+                                           }
+
+                                       }else{
+                                           e.printStackTrace();
+                                       }
+                                   }
+                               });
+                           }
+                       });
+
+
                    }
                    else{
                        e.printStackTrace();
@@ -367,21 +397,34 @@ public class MessagingActivity extends AppCompatActivity {
         }
     }
 
-    class getRemarks implements ParseArrayListListener<Remark>{
-        private ArrayList<Remark> remarks= null;
+    class getRemarks implements  AddParseObject{
+        private ArrayList<Remark> remarks= new ArrayList<>();
+        int size= 0;
 
-
-
+        public void setSize(int size) {
+            this.size = size;
+            if (size== 0)
+                finished();
+        }
 
         @Override
-        public void AddList(ArrayList<Remark> array) {
-            //set case remarks if needed
-                remarks= array;
+        public void AddObject(AbstractParseObject object) {
+            remarks.add((Remark) object);
+            synchronized (remarks) {
+                size--;
+                if (size == 0)
+                    finished();
+            }
+        }
 
+        public void finished() {
+            //set case remarks if needed
+
+    //setting the remarks button
             LayoutInflater inflater= null;
             View remarks_toolbar_view= null;
             boolean havingUrgentRemark= false;
-            for (Remark remark: array){
+            for (Remark remark: remarks){
                 if (remark.isUrgent())
                 {
                     havingUrgentRemark= true;
@@ -395,61 +438,102 @@ public class MessagingActivity extends AppCompatActivity {
                  inflater = getLayoutInflater();
                 remarks_toolbar_view= inflater.inflate(R.layout.case_remarks_view_clear,null);
             }
+            //adding the remarks toolbar
             ((AppBarLayout)findViewById(R.id.app_bar_layout)).addView(remarks_toolbar_view); //making instance tool bar with remarks on it
 
+            //setting instance of alert dialog with all remarks
             View remarks_view = inflater.inflate(R.layout.remarks_dialog_layout,null);
-            TableLayout remarks_table= (TableLayout)remarks_view.findViewById(R.id.remarks_table);
+            final TableLayout remarks_table= (TableLayout)remarks_view.findViewById(R.id.remarks_table);
+            //setting add new Remark button
+
+
+            //setting the remarks from the cloud in the view
             for (Remark remark: remarks){
-                View remark_item= inflater.inflate(R.layout.reamarks_dialog_item,null);
-                TableRow item_row = (TableRow) remark_item.findViewById(R.id.remark_row);
-                ImageView delete_button = (ImageView) item_row.findViewById(R.id.delete_remark_button);
-                TextView creator_text= (TextView)  item_row.findViewById(R.id.remark_created_by);
-                TextView remark_text= (TextView)  item_row.findViewById(R.id.remark_text);
-                ImageView is_urgent = (ImageView) item_row.findViewById(R.id.is_urgent_remark);
+            createRemark(remarks_table,remark, inflater);
 
-                delete_button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Snackbar.make(v,"future development",Snackbar.LENGTH_LONG).show();
-                    }
-                });
 
-                remark.getUser(new getRemarkCreator(creator_text));
-                remark_text.setText(remark.getText());
-
-                if (remark.isUrgent()){
-                    is_urgent.setImageDrawable(getResources().getDrawable(R.mipmap.ic_remark));
-                    is_urgent.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Snackbar.make(v,getResources().getString(R.string.urgent),Snackbar.LENGTH_LONG).show();
-                        }
-                    });
-                } else{
-                    is_urgent.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Snackbar.make(v,getResources().getString(R.string.not_urgent),Snackbar.LENGTH_LONG).show();
-                        }
-                    });
-                }
-
-                remarks_table.addView(remark_item);
             }
-            AlertDialog.Builder builder = new AlertDialog.Builder(MessagingActivity.this);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(MessagingActivity.this);
             builder.setView(remarks_view);
             builder.setTitle(getApplicationContext().getResources().getString(R.string.remarks));
             builder.setPositiveButton("OK", null);
-            builder.show();
+            final AlertDialog dialog= builder.create();
+            remarks_toolbar_view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.show();
+                }
+            });
+
+            ImageView addNewRemark = (ImageView) remarks_view.findViewById(R.id.add_new_remark_button);
+            TextView create_by= (TextView) remarks_view.findViewById(R.id.new_remark_created_by);
+            final EditText remark_text = (EditText) remarks_view.findViewById(R.id.remark_text);
+            final CheckBox is_urgent = (CheckBox) remarks_view.findViewById(R.id.is_urgent_remark);
+            String user_name= MyUser.getFirstName();
+            if (MyUser.getLastName().length()>3)
+                user_name+= MyUser.getLastName().substring(0,3);
+            else
+                 user_name+=MyUser.getLastName();
+            create_by.setText(user_name);
 
 
+            addNewRemark.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Remark new_remark = new Remark(MyUser,MyCase,remark_text.getText().toString(),is_urgent.isChecked(),new Date());
+                    new_remark.CreateAndSaveNewParseObject();
+                    //dismiss alert
+                    dialog.dismiss();
+
+                }
+            });
 
 
 
         }
 
 
-        class getRemarkCreator implements AddParseObject<User>{
+        public void createRemark(TableLayout remarks_table, Remark remark, LayoutInflater inflater) {
+            View remark_item= inflater.inflate(R.layout.reamarks_dialog_item,null);
+            TableRow item_row = (TableRow) remark_item.findViewById(R.id.remark_row);
+            ImageView delete_button = (ImageView) item_row.findViewById(R.id.delete_remark_button);
+            TextView creator_text= (TextView)  item_row.findViewById(R.id.remark_created_by);
+            TextView remark_text= (TextView)  item_row.findViewById(R.id.remark_text);
+            ImageView is_urgent = (ImageView) item_row.findViewById(R.id.is_urgent_remark);
+
+            delete_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Snackbar.make(v,"future development",Snackbar.LENGTH_LONG).show();
+                }
+            });
+
+            remark.getUser(new getRemarkCreator(creator_text));
+            remark_text.setText(remark.getText());
+
+            if (remark.isUrgent()){
+                is_urgent.setImageDrawable(getResources().getDrawable(R.mipmap.ic_remark));
+                is_urgent.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Snackbar.make(v,getResources().getString(R.string.urgent),Snackbar.LENGTH_LONG).show();
+                    }
+                });
+            } else{
+                is_urgent.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Snackbar.make(v,getResources().getString(R.string.not_urgent),Snackbar.LENGTH_LONG).show();
+                    }
+                });
+            }
+            remarks_table.addView(remark_item);
+        }
+
+        }
+
+
+        class getRemarkCreator implements AddParseObject{
             TextView creator_text= null;
 
             public getRemarkCreator(TextView creator_text) {
@@ -457,15 +541,16 @@ public class MessagingActivity extends AppCompatActivity {
             }
 
             @Override
-            public void AddObject(User object) {
-                if (object.getLastName().length()>3)
-                creator_text.setText(object.getFirstName()+" "+ object.getLastName().substring(0,3)+".");
+            public void AddObject(AbstractParseObject object) {
+                User user = (User) object;
+                if (user.getLastName().length()>3)
+                creator_text.setText(user.getFirstName()+" "+ user.getLastName().substring(0,3)+".");
                 else
-                    creator_text.setText(object.getFirstName()+" "+ object.getLastName());
+                    creator_text.setText(user.getFirstName()+" "+ user.getLastName());
 
             }
         }
     }
 
 
-}
+

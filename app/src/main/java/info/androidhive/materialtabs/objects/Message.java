@@ -61,7 +61,9 @@ public class Message extends AbstractParseObject implements AddParseObjects{
     private User from= null;
 
     protected int size= -1; //size of readers in db
-    protected  ArrayList<ParseArrayListListener<User>> callbacks= new ArrayList<ParseArrayListListener<User>>(); //helps to get "TO" with mvc model
+    protected  ArrayList<ParseArrayListListener<User>> callbacks_to= new ArrayList<ParseArrayListListener<User>>(); //helps to get "TO" with mvc model
+    protected ArrayList<AddParseObject> callbacks_from = new ArrayList<>();
+    protected ArrayList<AddParseObject> callbacks_conversation = new ArrayList<>();
 
     private ArrayList<User> to= new ArrayList<User>();//many to many
     private String text="";
@@ -77,9 +79,9 @@ public class Message extends AbstractParseObject implements AddParseObjects{
 
     public static final  SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
-    public Message(String messageObjectId, AddParseObject<Message> callback){
+    public Message(String messageObjectId, AddParseObject callback){
         this.messageObjectId =messageObjectId;
-        new GenerateFromObjectId<Message>(this,callback);
+        new GenerateFromObjectId(this,callback);
     }
 
 /*    public Message(ParseObject object, AddParseObject<Message> callback){
@@ -105,7 +107,7 @@ public class Message extends AbstractParseObject implements AddParseObjects{
             fromUserName= message.getString("fromUserName");
             //from= message.getString("from");
             String arrayTo=  message.getString("to"); //getting list of userNames with | between each one
-            AddParseObject<User> callback = null;
+            AddParseObject callback = null;
             for (String userName : new ArrayList<String>(Arrays.asList(arrayTo.split("|")))){
                 to.add(new User("","",userName, callback)); //again it's not important the userNames to be get fast
             }
@@ -118,9 +120,9 @@ public class Message extends AbstractParseObject implements AddParseObjects{
             e.printStackTrace();
         }
 
-        AddParseObject<Message> callback = new AddParseObject<Message>() { //after the message have object id you can save it locally
+        AddParseObject callback = new AddParseObject() { //after the message have object id you can save it locally
             @Override
-            public void AddObject(Message msg) {
+            public void AddObject(AbstractParseObject msg) {
                 msg.CreateAndSaveNewParseObject();
             }
         };
@@ -139,7 +141,7 @@ public class Message extends AbstractParseObject implements AddParseObjects{
 
     public Message( String fromUserName,String fromFirstName,String fromLastName, ArrayList<String> toUserNames, String text, boolean isUrgent,boolean isNew ,Conversation conversation) {
         this.isNew = isNew;
-        AddParseObject<User> callback= null;
+        AddParseObject callback= null;
         this.from = new User(fromFirstName, fromLastName,fromUserName,callback ); //user will generate himself with username
 
         for (String userName: toUserNames){
@@ -162,7 +164,6 @@ public class Message extends AbstractParseObject implements AddParseObjects{
             this.date= DATE_FORMAT.parse(date);
         } catch (ParseException e) {
             e.printStackTrace();
-        } finally {
         }
     }
 
@@ -194,19 +195,41 @@ public class Message extends AbstractParseObject implements AddParseObjects{
         return this.messageObjectId;
     }
 
+
+
     @Override
     public void GenerateFromParseObject(ParseObject object) {
 
         external_key = object.getString("external_key");
         messageObjectId= object.getObjectId();
+
+        AddParseObject getFrom = new AddParseObject() {
+            @Override
+            public void AddObject(AbstractParseObject object) {
+                from =  (User) object;
+                informWaiters();
+            }
+        };
+        AddParseObject getConv= new AddParseObject() {
+            @Override
+            public void AddObject(AbstractParseObject object) {
+                conversation= (Conversation ) object;
+                informWaiters();
+            }
+        };
         userParseObject = object.getParseObject("from");
-        //from = new User(object.getParseObject("from"),true);//relational DB
+
+
+        new User(object.getParseObject("from"),getFrom);
+
+
         date= object.getCreatedAt();
         isUrgent= object.getBoolean("isUrgent");
         text = object.getString("text");
 
+        new Conversation(object.getParseObject("conversation"),getConv);
         conversationParseObject = object.getParseObject("conversation");
-        //conversation = new Conversation(object.getParseObject("conversation")); //relational DB
+
 
         //retrieving "to"
         ParseQuery<ParseObject> queryTo = object.getRelation("to").getQuery();
@@ -309,11 +332,18 @@ public class Message extends AbstractParseObject implements AddParseObjects{
         object.put("to",users);
 
         object.put("isUrgent",isUrgent);
+        if (from == null)
+            object.put("from", userParseObject);
+        else
         object.put("from", ParseObject.createWithoutData(from.getTableName(),from.GetObjectId()));
         object.put("text", text);
-        ParseObject conv =  ParseObject.createWithoutData(conversation.getTableName(),conversation.GetObjectId());
+        if (conversation == null)
+            object.put("conversation", conversationParseObject);
+        else {
+            ParseObject conv = ParseObject.createWithoutData(conversation.getTableName(), conversation.GetObjectId());
 
-       object.put("conversation",conv);
+            object.put("conversation", conv);
+        }
         //todo i add this fix down - to make it work.. not sure if correct way to fix
         object.saveInBackground();
         return object;
@@ -324,16 +354,17 @@ public class Message extends AbstractParseObject implements AddParseObjects{
         if (size==to.size())
             callback.AddList(to);
         else{
-            this.callbacks.add(callback);
+            this.callbacks_to.add(callback);
         }
     }
 
 
-    public void getFrom(AddParseObject<User> callback) {
-        if (from == null)
-            from = new User(userParseObject,callback);
-        else
+    public void getFrom(AddParseObject callback) {
+        if (from != null)
             callback.AddObject(from);
+        else{
+            callbacks_from.add(callback);
+        }
     }
 
     @Override
@@ -346,9 +377,7 @@ public class Message extends AbstractParseObject implements AddParseObjects{
     public void AddObject(ParseObject object) {
         to.add(new User(object));
         if (size == to.size()) {
-            for (ParseArrayListListener listener : callbacks)
-                listener.AddList(to);
-            callbacks.clear();
+           informWaiters();
         }
     }
     public Conversation.Conversation_type getConversationType() {
@@ -377,7 +406,7 @@ public class Message extends AbstractParseObject implements AddParseObjects{
         //  }
     }
 
-    public void getConversation(AddParseObject<Conversation> callback) {
+    public void getConversation(AddParseObject callback) {
         /*
         slow method
          */
@@ -399,6 +428,30 @@ public class Message extends AbstractParseObject implements AddParseObjects{
     @Override
     public String getTableName() {
         return this.getClass().getSimpleName()+"s";
+    }
+
+    @Override
+    public void informWaiters() {
+        if (to != null)
+        {
+            for (ParseArrayListListener<User> parsable : callbacks_to){
+                parsable.AddList(to);
+            }
+            callbacks_to.clear();
+        }
+        if (from!= null){
+            for (AddParseObject callback: callbacks_from){
+                callback.AddObject(from);
+            }
+            callbacks_from.clear();
+
+        }
+       if (conversation != null){
+           for (AddParseObject callback : callbacks_conversation){
+               callback.AddObject(conversation);
+           }
+           callbacks_conversation.clear();
+       }
     }
 }
 

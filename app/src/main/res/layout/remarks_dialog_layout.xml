@@ -17,7 +17,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/add_new_remark_button"
                 android:layout_gravity="center_horizontal"
-                android:src="@mipmap/ic_new_remark" />
+                android:src="@mipmap/ic_new_remark"
+                />
             <EditText
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -36,6 +36,7 @@ import info.androidhive.materialtabs.objects.Conversation;
 import info.androidhive.materialtabs.objects.Duty;
 import info.androidhive.materialtabs.objects.Remark;
 import info.androidhive.materialtabs.objects.User;
+import info.androidhive.materialtabs.util.AbstractParseObject;
 import info.androidhive.materialtabs.util.AddParseObject;
 
 public class MainActivity extends AppCompatActivity  {
@@ -109,9 +110,9 @@ public class MainActivity extends AppCompatActivity  {
             startActivity(new Intent(this,LoginActivity.class));
             finish();
         }
-        AddParseObject<User> callback = new AddParseObject<User>() {
+        AddParseObject callback = new AddParseObject() {
             @Override
-            public void AddObject(User object) {
+            public void AddObject(AbstractParseObject object) {
 
                // Duty duty = new Duty("doing dishes", object);
                // duty.CreateAndSaveNewParseObject();

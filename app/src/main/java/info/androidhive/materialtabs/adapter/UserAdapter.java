@@ -12,12 +12,13 @@ import java.util.ArrayList;
 
 import info.androidhive.materialtabs.R;
 import info.androidhive.materialtabs.objects.User;
+import info.androidhive.materialtabs.util.AbstractParseObject;
 import info.androidhive.materialtabs.util.AddParseObject;
 
 /**
  * Created by ido on 03/12/2015.
  */
-public class UserAdapter  extends BaseAdapter implements AddParseObject<User> {
+public class UserAdapter  extends BaseAdapter implements AddParseObject {
     private Context context= null;
     private ArrayList<User> values= new ArrayList<User>();
     private User user= null;
@@ -71,7 +72,7 @@ public class UserAdapter  extends BaseAdapter implements AddParseObject<User> {
     }
 
     @Override
-    public void AddObject(User object) {
-        this.addUser(object);
+    public void AddObject(AbstractParseObject object) {
+        this.addUser((User)object);
     }
 }

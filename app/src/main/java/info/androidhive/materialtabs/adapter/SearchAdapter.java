@@ -28,20 +28,20 @@ import info.androidhive.materialtabs.util.ParseArrayListListener;
 /**
  * Created by ido on 08/02/2016.
  */
-public class SearchAdapter <T extends AbstractParseObject> extends BaseAdapter implements AddParseObject<T>{
+public class SearchAdapter  extends BaseAdapter implements AddParseObject{
     /*
     this adapter is for the main screen, it contains 3 type of search items:
     1. contacts (user name)
     2. name of conversations
     3. messages inside each chat
      */
-    ArrayList<T> values= new ArrayList<>();
+    ArrayList<AbstractParseObject> values= new ArrayList<>();
     private User current_user = null;
     private Context context= null;
 
-    private Comparator<T> comparator= new Comparator<T>() {
+    private Comparator<AbstractParseObject> comparator= new Comparator<AbstractParseObject>() {
         @Override
-        public int compare(T lhs, T rhs) {
+        public int compare(AbstractParseObject lhs, AbstractParseObject rhs) {
             int powerLeft =0,powerRight= 0; //1 stronger than 2/3
             /*
             gets degree-> 3 the highest is users
@@ -155,7 +155,7 @@ public class SearchAdapter <T extends AbstractParseObject> extends BaseAdapter i
     }
 
     @Override
-    public void AddObject(T object) {
+    public void AddObject(AbstractParseObject object) {
 
         synchronized (values) {
             values.add(object);
@@ -170,7 +170,7 @@ public class SearchAdapter <T extends AbstractParseObject> extends BaseAdapter i
     }
 
 
-    class AddMessage implements AddParseObject<Conversation>{
+    class AddMessage implements AddParseObject{
 
         Context context= null;
         TextView row = null;
@@ -183,10 +183,10 @@ public class SearchAdapter <T extends AbstractParseObject> extends BaseAdapter i
         }
 
         @Override
-        public void AddObject(Conversation object) {
-            conversation= object;
+        public void AddObject(AbstractParseObject object) {
+            conversation= (Conversation ) object;
             if (!conversation.IsPrivate()) {
-                row.setText(object.getConversationName());
+                row.setText(conversation.getConversationName());
                 if (conversation.IsCASE()){
                     //nothing special right now
 

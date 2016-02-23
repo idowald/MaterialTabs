@@ -30,6 +30,7 @@ public class FindCallbackObjects implements FindCallback<ParseObject>{
             for (ParseObject object : parseObjects)
                 callback.AddObject(object);
 
+
         }else{
 
          e.printStackTrace();

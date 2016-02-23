@@ -49,20 +49,20 @@ when want to open an old conversation:
 
 
 
-    public Conversation(String ConversationObjectId ,AddParseObject<Conversation> callback){
+    public Conversation(String ConversationObjectId ,AddParseObject callback){
         /*
         this is used by Message class when a message received and we want to find the correct Conv
          */
         this.ConversationObjectId = ConversationObjectId;
-        new GenerateFromObjectId<Conversation>(this, callback);
+        new GenerateFromObjectId(this, callback);
 
     }
-    public Conversation(Conversation_type conversation_type, String conversationName, AddParseObject<Conversation> callback){
+    public Conversation(Conversation_type conversation_type, String conversationName, AddParseObject callback){
         /**
          * creates conversation by key ConversationName
          */
         this( conversation_type,  conversationName);
-        new SaveInBackgroundByKey<Conversation>(this,"conversationName",callback);
+        new SaveInBackgroundByKey(this,"conversationName",callback);
 
     }
 
@@ -75,7 +75,8 @@ when want to open an old conversation:
 
     }
 
-    public Conversation(String conversationName, Conversation_type conversation_type,String ConversationObjectId,AddParseObject<Conversation> callback ){
+    public Conversation(String conversationName, Conversation_type conversation_type,
+                        String ConversationObjectId,AddParseObject callback ){
         //this constructor helps to get data fast without cloud and in background sync the fields
         this(ConversationObjectId, callback);
         this.conversationName = conversationName;
@@ -84,7 +85,7 @@ when want to open an old conversation:
     }
 
 
-    public Conversation(ParseObject object, AddParseObject<Conversation> callback){
+    public Conversation(ParseObject object, AddParseObject callback){
         new fetchIfNeededInBackgroundRelational(this, object, callback);
     }
     public Conversation(ParseObject object){
@@ -135,11 +136,11 @@ when want to open an old conversation:
 
     @Override
     public void CreateAndSaveNewParseObject() {
-        new SaveInBackgroundByKey<Conversation>(this,"conversationName", null);
+        new SaveInBackgroundByKey(this,"conversationName", null);
     }
 
     public void CreateAndSaveNewParseObject(AddParseObject callback) {
-        new SaveInBackgroundByKey<Conversation>(this,"conversationName",callback);
+        new SaveInBackgroundByKey(this,"conversationName",callback);
     }
 
     @Override
@@ -208,13 +209,25 @@ when want to open an old conversation:
     }
     public void addReader(User user){
         this.readers.add(user);
+        if (readers.size() == size){
+            informWaiters();
+        }
     }
     public void setReaders(ArrayList<User> readers) {
         this.readers = readers;
     }
 
+    @Override
+    public void informWaiters() {
+        if (readers != null)
+        {
+            for (ParseArrayListListener<User> parsable : callbacks){
+                parsable.AddList(readers);
+            }
+            callbacks.clear();
+        }
 
-
+    }
 
     public enum Conversation_type {
 

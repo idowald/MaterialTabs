@@ -119,7 +119,7 @@ public class ProfileTab extends Fragment{
                     conversationSize = objects.size();
                     for (ParseObject object : objects){
 
-                        Conversation conversation= new Conversation(object,  new AddParseobject<Conversation>());
+                        Conversation conversation= new Conversation(object,  new AddParseobject());
                     }
 
                 }else
@@ -140,7 +140,7 @@ public class ProfileTab extends Fragment{
                     dutySize = objects.size();
 
                     for (ParseObject object : objects){
-                        Duty d = new Duty(object, new AddParseobject<Duty>());
+                        Duty d = new Duty(object, new AddParseobject());
 
                     }
                 }else{
@@ -267,22 +267,22 @@ public class ProfileTab extends Fragment{
         }
     }
 
-    class AddParseobject <T extends AbstractParseObject> implements  AddParseObject<T>{
-        T Myobject= null;
+    class AddParseobject implements  AddParseObject{
+        AbstractParseObject Myobject= null;
         @Override
-        public void AddObject(T object) {
+        public void AddObject(AbstractParseObject object) {
             this.Myobject= object;
             if (Myobject instanceof  Duty)
-                ((Duty)Myobject).getConversation(new AddParseObject<Conversation>() {
+                ((Duty)Myobject).getConversation(new AddParseObject() {
                 @Override
-                public void AddObject(Conversation object) {
+                public void AddObject(AbstractParseObject object) {
 
                     synchronized (finishedMap) {
 
                         ArrayList<AbstractParseObject> list = new ArrayList<AbstractParseObject>();
                         list.add(object);
                         list.add((AbstractParseObject)Myobject);
-                        map.put(object.getConversationObjectId(), list);
+                        map.put(((Conversation)object).getConversationObjectId(), list);
                         synchronized (dutySize) {
                             dutySize--;
                             if (conversationSize + dutySize == 0) {

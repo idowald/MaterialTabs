@@ -2,6 +2,8 @@ package info.androidhive.materialtabs.objects;
 
 import com.parse.ParseObject;
 
+import java.util.ArrayList;
+
 import info.androidhive.materialtabs.util.AbstractParseObject;
 import info.androidhive.materialtabs.util.AddParseObject;
 import info.androidhive.materialtabs.util.GenerateFromObjectId;
@@ -22,18 +24,24 @@ public class Duty extends AbstractParseObject{
 
     String dutyName="";
     String inDuty="false";
-    private ParseObject conversationObject = null;
+
+    protected ArrayList<AddParseObject> callbacks_conversation = new ArrayList<>();
+
+    protected ParseObject conversationObject =null;
     private Conversation conversation= null;
+    protected boolean IsnullConversation = false;
+
+    protected ArrayList<AddParseObject> callbacks_user = new ArrayList<>();
+    private User user=null;
     protected ParseObject userObject = null;
-    User user=null;
 
 
 
-    public Duty(String dutyObjectId, AddParseObject<Duty> callback){
+    public Duty(String dutyObjectId, AddParseObject callback){
         this. dutyObjectId = dutyObjectId;
-        new GenerateFromObjectId<Duty>(this, callback);
+        new GenerateFromObjectId(this, callback);
     }
-    public Duty(ParseObject parseObject , AddParseObject<Duty> callback){
+    public Duty(ParseObject parseObject , AddParseObject callback){
         new fetchIfNeededInBackgroundRelational(this, parseObject, callback);
     }
 
@@ -93,16 +101,40 @@ public class Duty extends AbstractParseObject{
 
     @Override
     public void GenerateFromParseObject(ParseObject parseObject) {
+        ParseObject conv_object= null;
         try {
-            this.conversationObject = parseObject.getParseObject("conversation");
+            conv_object = parseObject.getParseObject("conversation");
         } catch (Exception e){
             //no needed object
-            this.conversationObject = null;
+            IsnullConversation = true;
+        }
+        if (!IsnullConversation)
+        { AddParseObject getConv= new AddParseObject() {
+            @Override
+            public void AddObject(AbstractParseObject object) {
+                conversation= (Conversation) object;
+                informWaiters();
+            }
+        };
+            new Conversation(conv_object,getConv);
+
+
         }
 
+        AddParseObject getUser= new AddParseObject() {
+            @Override
+            public void AddObject(AbstractParseObject object) {
+                user= (User) object;
+            }
+        };
+
+
         this.dutyName = parseObject.getString("dutyName");
-        this.userObject = parseObject.getParseObject("user");
+        new User( parseObject.getParseObject("user"),getUser ) ;
         this.inDuty= parseObject.getString("inDuty");
+
+        userObject=  parseObject.getParseObject("user");
+        conversationObject = conv_object;
 
     }
 
@@ -119,9 +151,9 @@ public class Duty extends AbstractParseObject{
         this.dutyName = dutyName;
     }
 
-    public void getUser(AddParseObject<User> callback) {
+    public void getUser(AddParseObject callback) {
         if (user == null)
-       this.user= new User( userObject, callback);
+            callbacks_user.add(callback);
         else
             callback.AddObject(user);
 
@@ -132,10 +164,9 @@ public class Duty extends AbstractParseObject{
     }
 
 
-    public void getConversation(AddParseObject<Conversation> callback) {
+    public void getConversation(AddParseObject callback) {
         if (conversation == null) {
-            if (conversationObject != null)
-                this.conversation = new Conversation(conversationObject, callback);
+            callbacks_conversation.add(callback);
         }
         else
             callback.AddObject(conversation);
@@ -157,5 +188,24 @@ public class Duty extends AbstractParseObject{
     @Override
     public String getTableName() {
         return this.getClass().getSimpleName()+"s";
+    }
+
+    @Override
+    public void informWaiters() {
+
+        if (conversation!= null) {
+            for (AddParseObject callback : callbacks_conversation) {
+                callback.AddObject(conversation);
+            }
+            callbacks_conversation.clear();
+        }
+
+        if (user!= null) {
+            for (AddParseObject callback : callbacks_user) {
+                callback.AddObject(user);
+            }
+            callbacks_user.clear();
+        }
+
     }
 }

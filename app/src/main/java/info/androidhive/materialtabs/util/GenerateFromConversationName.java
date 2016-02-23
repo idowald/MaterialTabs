@@ -16,13 +16,13 @@ public class GenerateFromConversationName implements GetCallback<ParseObject>{
      * this class helps to find users by username
      */
     private Conversation conversation;
-    private AddParseObject<Conversation> CallMethod= null;
+    private AddParseObject CallMethod= null;
 
     public GenerateFromConversationName(Conversation object) {
         this(object,null);
     }
 
-    public GenerateFromConversationName(Conversation conversation, AddParseObject<Conversation> callMethod) {
+    public GenerateFromConversationName(Conversation conversation, AddParseObject callMethod) {
         this.conversation = conversation;
         CallMethod = callMethod;
         ParseQuery<ParseObject> query  = ParseQuery.getQuery(conversation.getTableName()); //for class Remark it will go to Remarks

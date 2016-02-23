@@ -18,7 +18,7 @@ import info.androidhive.materialtabs.util.AddParseObject;
 /**
  * Created by ido on 06/02/2016.
  */
-public class ContactAdapter extends BaseAdapter implements AddParseObject<AbstractParseObject> {
+public class ContactAdapter extends BaseAdapter implements AddParseObject {
 
     ArrayList<AbstractParseObject> contacts = new ArrayList<>();
 

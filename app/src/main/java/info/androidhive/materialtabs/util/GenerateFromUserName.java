@@ -18,13 +18,13 @@ public class GenerateFromUserName implements GetCallback<ParseObject>{
      * this class helps to find users by username
      */
     private User user;
-    private AddParseObject<User> CallMethod= null;
+    private AddParseObject CallMethod= null;
 
     public GenerateFromUserName(User object) {
         this(object,null);
     }
 
-    public GenerateFromUserName(User user, AddParseObject<User> callMethod) {
+    public GenerateFromUserName(User user, AddParseObject callMethod) {
         this.user = user;
         CallMethod = callMethod;
         Log.v("generate", "GenerateFromUserName");
