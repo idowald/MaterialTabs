@@ -5,6 +5,8 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import info.androidhive.materialtabs.DB.DbHelper;
+import info.androidhive.materialtabs.DB.MessagesDB;
 import info.androidhive.materialtabs.objects.Message;
 
 
@@ -39,6 +41,19 @@ public class GenerateFromExternalKey  implements GetCallback<ParseObject>{
             message.GenerateFromParseObject(parseObject);
             if (CallMethod!= null)
                 CallMethod.AddObject(message);
+            /**
+             * save in the DB
+             */
+
+            MessagesDB messagesDB = new MessagesDB();
+            messagesDB.date= message.getDateObject();
+            messagesDB.Text= message.getText();
+            messagesDB.is_incoming = 1;
+            messagesDB.id= message.getObjectId();
+            messagesDB.Conversation_id = message.getConversationObjectId();
+
+            DbHelper.InsertMessage(messagesDB);
+
         } else{
             e.printStackTrace();
         }

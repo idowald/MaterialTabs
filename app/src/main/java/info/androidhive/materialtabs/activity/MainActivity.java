@@ -1,7 +1,9 @@
 package info.androidhive.materialtabs.activity;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -25,6 +27,9 @@ import java.util.Date;
 import java.util.List;
 
 
+import info.androidhive.materialtabs.DB.ConversationsDB;
+import info.androidhive.materialtabs.DB.DbHelper;
+import info.androidhive.materialtabs.DB.MessagesDB;
 import info.androidhive.materialtabs.R;
 import info.androidhive.materialtabs.fragments.CaseTab;
 import info.androidhive.materialtabs.fragments.GroupTab;
@@ -34,6 +39,7 @@ import info.androidhive.materialtabs.objects.Case;
 import info.androidhive.materialtabs.objects.Conversation;
 //import info.androidhive.materialtabs.objects.Department;
 import info.androidhive.materialtabs.objects.Duty;
+import info.androidhive.materialtabs.objects.Message;
 import info.androidhive.materialtabs.objects.Remark;
 import info.androidhive.materialtabs.objects.User;
 import info.androidhive.materialtabs.util.AbstractParseObject;
@@ -95,7 +101,92 @@ public class MainActivity extends AppCompatActivity  {
 
 
 
+        DbHelper.ReadfromDB();
+        ParseQuery<ParseObject> innerquery = ParseQuery.getQuery("Users");
 
+        innerquery.whereEqualTo("userName",my_user.getUserName());
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Conversations");
+        query.whereMatchesQuery("Users", innerquery);
+
+        query.findInBackground(new FindCallback<ParseObject>() {
+                                   @Override
+                                   public void done(List<ParseObject> objects, ParseException e) {
+                                       if (e== null){
+                                          if (true)
+                                              return;
+                                           DbHelper helper = new DbHelper();
+                                           final SQLiteDatabase db = helper.getWritableDatabase();
+                                           for (ParseObject object: objects){
+                                               new Conversation(object, new AddParseObject() {
+                                                   @Override
+                                                   public void AddObject(AbstractParseObject object) {
+                                                       Conversation conversation = (Conversation) object;
+                                                       ContentValues values = new ContentValues();
+
+                                                       values.put(ConversationsDB.Entries.ID,conversation.GetObjectId());
+                                                       values.put(ConversationsDB.Entries.CONVERSATION_NAME,conversation.getConversationName());
+                                                       db.insert(ConversationsDB.Entries.TABLE_NAME,"NULL",values);
+                                                   }
+                                               });
+
+
+                                           }
+                                       }else{
+                                           Log.e("error",e.getMessage());
+                                       }
+                                   }
+                               });
+
+
+
+        ParseQuery<ParseObject> query_messages = new ParseQuery<ParseObject>("Messages");
+
+
+        query_messages.whereMatchesQuery("from",innerquery);
+
+
+        ParseQuery<ParseObject> query_messages2 = new ParseQuery<ParseObject>("Messages");
+
+
+        query_messages2.whereMatchesQuery("to",innerquery);
+
+        //query_messages.fromLocalDatastore();
+
+        //set that from and to will set to the current user
+        ArrayList<ParseQuery<ParseObject>> messages_queries= new ArrayList<ParseQuery<ParseObject>>();
+        messages_queries.add(query_messages);
+        messages_queries.add(query_messages2);
+        ParseQuery.or(messages_queries).findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if (e== null){
+                    if(true)
+                        return;
+                      DbHelper helper = new DbHelper();
+                    final SQLiteDatabase db = helper.getWritableDatabase();
+                    for (ParseObject object: objects){
+                        Message message = new Message(object, new AddParseObject() {
+                            @Override
+                            public void AddObject(AbstractParseObject object) {
+                                Message message = (Message) object;
+                                ContentValues values = new ContentValues();
+                                values.put(MessagesDB.Entries.ID, message.GetObjectId());
+                                values.put(MessagesDB.Entries.TEXT,message.getText());
+                                values.put(MessagesDB.Entries.DATE,MessagesDB.DATE_FORMAT.format(message.getDateObject()));
+                                values.put(MessagesDB.Entries.IS_INCOMING,0);
+                                values.put(MessagesDB.Entries.CONVERSATION_ID, message.getConversationName());
+                                db.insert(MessagesDB.Entries.TABLE_NAME,"NULL",values);
+                            }
+                        });
+
+
+                    }
+
+                }else{
+                    Log.e("ERROR", e.getMessage());
+                }
+            }
+        });
 
 
     }

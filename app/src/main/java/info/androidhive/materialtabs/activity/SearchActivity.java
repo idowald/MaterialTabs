@@ -64,22 +64,39 @@ public class SearchActivity extends AppCompatActivity {
                 progress.setMessage("Wait while loading...");
                 progress.show();
 // To dismiss the dialog
-                String search_str = search_Text.getText().toString();
+                String search_str = search_Text.getText().toString().trim();
+
+                ParseQuery<ParseObject> innerquery = ParseQuery.getQuery("Users");
+
+                innerquery.whereEqualTo("userName",current_user.getUserName());
+
 
                 ParseQuery<ParseObject> query_messages = new ParseQuery<ParseObject>("Messages");
                 query_messages.whereContains("text",search_str);
-                query_messages.fromLocalDatastore();
-                query_messages.findInBackground(new FindCallback<ParseObject>() {
+
+                query_messages.whereMatchesQuery("from",innerquery);
+
+
+                ParseQuery<ParseObject> query_messages2 = new ParseQuery<ParseObject>("Messages");
+                query_messages2.whereContains("text",search_str);
+
+                query_messages2.whereMatchesQuery("to",innerquery);
+
+                //query_messages.fromLocalDatastore();
+
+                //set that from and to will set to the current user
+                ArrayList<ParseQuery<ParseObject>> messages_queries= new ArrayList<ParseQuery<ParseObject>>();
+                ParseQuery.or(messages_queries).findInBackground(new FindCallback<ParseObject>() {
                     @Override
                     public void done(List<ParseObject> objects, ParseException e) {
                         if (e== null){
                             for (ParseObject object :objects){
-                                Message message= new Message(object);
+                                final Message message= new Message(object);
 
                                 message.getConversation(new AddParseObject() {
                                     @Override
                                     public void AddObject(AbstractParseObject object) {
-                                        searchAdapter.AddObject(object);
+                                        searchAdapter.AddObject(message);
                                     }
                                 });
 
@@ -128,9 +145,9 @@ public class SearchActivity extends AppCompatActivity {
                     }
                 });
 
-                ParseQuery<ParseObject> innerquery = ParseQuery.getQuery("Users");
-                innerquery.whereEqualTo("userName",current_user.getUserName());
-                ParseQuery<ParseObject> query_conversation = new ParseQuery<ParseObject>("Conversation");
+
+
+                ParseQuery<ParseObject> query_conversation = new ParseQuery<ParseObject>("Conversations");
                 query_conversation.whereContains("conversationName",search_str);
                 query_conversation.whereNotEqualTo("conversation_type",Conversation.Conversation_type.PRIVATE.getString());
                 query_conversation.whereMatchesQuery("Users", innerquery);

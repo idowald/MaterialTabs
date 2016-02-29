@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
+import info.androidhive.materialtabs.DB.DbHelper;
+import info.androidhive.materialtabs.DB.MessagesDB;
 import info.androidhive.materialtabs.util.AbstractParseObject;
 import info.androidhive.materialtabs.util.AddParseObject;
 import info.androidhive.materialtabs.util.AddParseObjects;
@@ -21,6 +23,7 @@ import info.androidhive.materialtabs.util.GenerateFromExternalKey;
 import info.androidhive.materialtabs.util.GenerateFromObjectId;
 import info.androidhive.materialtabs.util.ParseArrayListListener;
 import info.androidhive.materialtabs.util.SaveInBackGround;
+import info.androidhive.materialtabs.util.fetchIfNeededInBackgroundRelational;
 
 
 /**
@@ -88,9 +91,12 @@ public class Message extends AbstractParseObject implements AddParseObjects{
         new fetchIfNeededInBackgroundRelational(this, object, callback);
 
     }*/
-
     public Message(ParseObject object){
-        this.GenerateFromParseObject( object);
+        this.GenerateFromParseObject(object);
+    }
+    public Message(ParseObject parseObject, AddParseObject callback){
+
+        new fetchIfNeededInBackgroundRelational(this, parseObject, callback);
 
     }
 
@@ -188,6 +194,9 @@ public class Message extends AbstractParseObject implements AddParseObjects{
     }
     public String getDate() {
         return DATE_FORMAT.format(date);
+    }
+    public Date getDateObject() {
+        return date;
     }
 
     @Override
@@ -296,6 +305,11 @@ public class Message extends AbstractParseObject implements AddParseObjects{
         because object id can be saved in later work.
          */
         messageObjectId = objectId;
+        /*
+        save the object within the DB
+         */
+
+
     }
 
     @Override
@@ -307,7 +321,7 @@ public class Message extends AbstractParseObject implements AddParseObjects{
             -it implements with Parsable and used by ?
              */
 
-        new SaveInBackGround<>(this);
+        new SaveInBackGround(this);
 
     }
 
@@ -349,6 +363,10 @@ public class Message extends AbstractParseObject implements AddParseObjects{
         return object;
     }
 
+    public boolean isIncoming(String username){
+        return !fromUserName.matches(username);
+
+    }
 
     public void getTo(ParseArrayListListener<User> callback) {
         if (size==to.size())
@@ -357,6 +375,7 @@ public class Message extends AbstractParseObject implements AddParseObjects{
             this.callbacks_to.add(callback);
         }
     }
+
 
 
     public void getFrom(AddParseObject callback) {
@@ -392,6 +411,8 @@ public class Message extends AbstractParseObject implements AddParseObjects{
 
     public String getConversationObjectId() {
         // if (conversationObjectId != null)
+        if (conversation!= null)
+            return conversation.getConversationObjectId();
         return conversationObjectId;
         // else
         //   return  getConversation().getConversationObjectId();

@@ -3,11 +3,17 @@ package info.androidhive.materialtabs.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +22,7 @@ import java.util.TreeSet;
 
 import info.androidhive.materialtabs.R;
 import info.androidhive.materialtabs.activity.MessagingActivity;
+import info.androidhive.materialtabs.fragments.PrivateChatTab;
 import info.androidhive.materialtabs.objects.Case;
 import info.androidhive.materialtabs.objects.Conversation;
 import info.androidhive.materialtabs.objects.Message;
@@ -121,7 +128,7 @@ public class SearchAdapter  extends BaseAdapter implements AddParseObject{
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView= null;
@@ -129,9 +136,43 @@ public class SearchAdapter  extends BaseAdapter implements AddParseObject{
         TextView upperText = (TextView) rowView.findViewById(R.id.username);
         TextView bottomText = (TextView) rowView.findViewById(R.id.lastmessage);
         if (values.get(position) instanceof  User){
-            User user= (User)values.get(position) ;
+
+            final User user= (User)values.get(position) ;
             upperText.setText(user.getFirstName()+" "+user.getLastName());
             bottomText.setText("");
+            rowView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ParseQuery<ParseObject> right_side= ParseQuery.getQuery("Conversations");
+                    right_side.whereEqualTo("conversationName", current_user.GetObjectId() +"|"+user.GetObjectId() );
+                    ParseQuery<ParseObject> left_side= ParseQuery.getQuery("Conversations");
+                    left_side.whereEqualTo("conversationName", user.GetObjectId() +"|"+current_user.GetObjectId() );
+                    Log.v("users",current_user.GetObjectId() +"|"+user.GetObjectId() );
+                    Log.v("users2", user.GetObjectId() +"|"+current_user.GetObjectId() );
+                    ArrayList<ParseQuery<ParseObject>> list= new ArrayList<ParseQuery<ParseObject>>();
+                    list.add(right_side);
+                    list.add(left_side);
+                    ParseQuery.or(list).getFirstInBackground(new GetCallback<ParseObject>() {
+                        @Override
+                        public void done(ParseObject object, ParseException e) {
+                            if (e== null){
+                                Conversation conversation= new Conversation(object, new AddParseObject() {
+                                    @Override
+                                    public void AddObject(AbstractParseObject object) {
+                                        //TODO check if the static current User (in the method) indeed works
+                                        PrivateChatTab.openConversation(context,(Conversation) object);
+
+                                    }
+                                });
+
+                            }else{
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+
+                }
+            });
 
         }else if(values.get(position) instanceof  Conversation){
             Conversation conversation= (Conversation)values.get(position) ;
@@ -139,15 +180,45 @@ public class SearchAdapter  extends BaseAdapter implements AddParseObject{
             addMessage.AddObject(conversation);
             upperText.setText(conversation.getConversationName());
             bottomText.setText("");
+            rowView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    PrivateChatTab.openConversation(context,(Conversation) values.get(position));
+                }
+            });
 
         } else if(values.get(position) instanceof  Message){
-            Message message= (Message)values.get(position) ;
+            final Message message= (Message)values.get(position) ;
             message.getConversation(new AddMessage(upperText,context));
             //upperText.setText(message.getConversationName());
             bottomText.setText(message.getText());
+            rowView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    message.getConversation(new AddParseObject() {
+                        @Override
+                        public void AddObject(AbstractParseObject object) {
+                            PrivateChatTab.openConversation(context,(Conversation) object);
+                        }
+                    });
+                }
+            });
         } else if (values.get(position) instanceof Case){
-            Case c= (Case)values.get(position);
+           final Case c= (Case)values.get(position);
             c.getConversation(new AddMessage(upperText,context));
+            rowView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    c.getConversation(new AddParseObject() {
+                        @Override
+                        public void AddObject(AbstractParseObject object) {
+                            PrivateChatTab.openConversation(context,(Conversation)object);
+                        }
+                    });
+                }
+            });
 
         }
 

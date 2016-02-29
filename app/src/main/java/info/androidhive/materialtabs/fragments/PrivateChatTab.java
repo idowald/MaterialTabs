@@ -1,6 +1,7 @@
 package info.androidhive.materialtabs.fragments;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -30,7 +31,7 @@ import info.androidhive.materialtabs.objects.sendingObjects;
 
 
 public class PrivateChatTab extends Fragment{
-    private User currentUserId = null;
+   static private User currentUserId = null;
     private ConversationAdapter conversationArrayAdapter = null;
     private ArrayList<Conversation> conversations = new ArrayList<Conversation>();
     private ListView conversationListView = null;
@@ -73,7 +74,7 @@ public class PrivateChatTab extends Fragment{
 
     }
     private void setConversationsList() {
-
+        conversations.clear();
         conversationArrayAdapter =
                 new ConversationAdapter(getActivity().getApplicationContext(), conversations, currentUserId);
 
@@ -101,7 +102,7 @@ public class PrivateChatTab extends Fragment{
                         @Override
                         public void onItemClick(AdapterView<?> a, View v, int pos, long l) {
                              selected_conversation =conversations.get(pos);
-                            openConversation(selected_conversation);
+                            openConversation(v.getContext() ,selected_conversation);
                         }
                     });
 
@@ -130,16 +131,17 @@ public class PrivateChatTab extends Fragment{
 
     }
     //open a conversation with one person
-    public void openConversation(Conversation conversation) {
+   static public void openConversation(Context context, Conversation conversation) {
 
-        Intent intent = new Intent(getActivity().getApplicationContext(), MessagingActivity.class);
+        Intent intent = new Intent(context, MessagingActivity.class);
+       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
         Bundle bundle = new Bundle();
         sendingObjects.myObject.put(conversation.getConversationName(), conversation);
         bundle.putSerializable("conversation", conversation.getConversationName());
         //TODO throw error at start if it's not instanciated
         bundle.putSerializable("my_user", currentUserId);
         intent.putExtras(bundle);
-        startActivity(intent);
+       context.startActivity(intent);
 
 
     }

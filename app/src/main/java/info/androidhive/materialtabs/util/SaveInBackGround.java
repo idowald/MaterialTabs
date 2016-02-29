@@ -3,6 +3,10 @@ package info.androidhive.materialtabs.util;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
+import info.androidhive.materialtabs.DB.DbHelper;
+import info.androidhive.materialtabs.DB.MessagesDB;
+import info.androidhive.materialtabs.objects.Message;
+
 /**
  * Created by ido on 01/12/2015.
  */
@@ -20,8 +24,9 @@ public class SaveInBackGround  <T extends Parsable> implements SaveCallback {
     ParseObject parseObject= null;
 
     public SaveInBackGround(T parsableObject) {
-        this.parseObject = parsableObject.ToParseObject();
         object = parsableObject;
+        this.parseObject = parsableObject.ToParseObject();
+
 
 
 
@@ -33,6 +38,17 @@ public class SaveInBackGround  <T extends Parsable> implements SaveCallback {
         if (e== null)
         {
             object.SetObjectId(parseObject.getObjectId());
+            if (object instanceof Message){
+                Message message = (Message) object;
+                MessagesDB messagesDB = new MessagesDB();
+                messagesDB.date= message.getDateObject();
+                messagesDB.Text= message.getText();
+                messagesDB.is_incoming = 0;
+                messagesDB.id= message.getObjectId();
+                messagesDB.Conversation_id = message.getConversationObjectId();
+
+                DbHelper.InsertMessage(messagesDB);
+            }
             //this is the important thing:
             parseObject.pinInBackground(); //saving in the local drive!
         }

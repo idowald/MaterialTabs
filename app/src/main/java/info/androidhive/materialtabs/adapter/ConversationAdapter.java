@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import info.androidhive.materialtabs.DB.DbHelper;
+import info.androidhive.materialtabs.DB.MessagesDB;
 import info.androidhive.materialtabs.R;
 import info.androidhive.materialtabs.objects.Conversation;
 import info.androidhive.materialtabs.objects.User;
@@ -27,6 +29,7 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject {
      */
     private Context context= null;
     private ArrayList<Conversation> values= new ArrayList<Conversation>();
+
     private User my_user = null;
 
     public ConversationAdapter(Context context, ArrayList<Conversation> values , User my_user) {
@@ -60,6 +63,15 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject {
             };
 
             conversation_item.getReaders(callback);
+            MessagesDB messagesDB = DbHelper.getLastMessage(conversation_item.getConversationObjectId());
+            if (messagesDB == null) {
+                Log.v("e", "null");
+                messageView.setText("");
+            }
+            else{
+                Log.v("ss",""+messagesDB.Text);
+                messageView.setText(messagesDB.Text);
+            }
         }
         else{
             userView.setText(conversation_item.getConversationName());
@@ -67,7 +79,7 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject {
 
 
 
-        messageView.setText("my message!");
+
 
         return rowView;
     }

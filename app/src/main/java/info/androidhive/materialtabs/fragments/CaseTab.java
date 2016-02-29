@@ -69,7 +69,7 @@ public class CaseTab extends Fragment{
 
     }
     private void setConversationsList() {
-
+        conversations.clear();
         conversationArrayAdapter =
                 new ConversationAdapter(getActivity().getApplicationContext(), conversations, current_user);
 

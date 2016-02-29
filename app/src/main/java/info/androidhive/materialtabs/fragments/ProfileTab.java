@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import info.androidhive.materialtabs.R;
 import info.androidhive.materialtabs.objects.Conversation;
@@ -108,11 +109,11 @@ public class ProfileTab extends Fragment{
         ParseQuery<ParseObject> innerquery = ParseQuery.getQuery("Users");
 
         innerquery.whereEqualTo("userName",current_user.getUserName());
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Conversations");
-        query.whereMatchesQuery("Users", innerquery);
-        query.whereEqualTo("conversation_type", Conversation.Conversation_type.GROUP.getString());
+        ParseQuery<ParseObject> queryConversation = ParseQuery.getQuery("Conversations");
+        queryConversation.whereMatchesQuery("Users", innerquery);
+        queryConversation.whereEqualTo("conversation_type", Conversation.Conversation_type.GROUP.getString());
 
-        query.findInBackground(new FindCallback<ParseObject>() {
+        queryConversation.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 if (e== null){
@@ -120,6 +121,7 @@ public class ProfileTab extends Fragment{
                     for (ParseObject object : objects){
 
                         Conversation conversation= new Conversation(object,  new AddParseobject());
+
                     }
 
                 }else
@@ -133,6 +135,9 @@ public class ProfileTab extends Fragment{
 
         ParseQuery<ParseObject> queryDuties= ParseQuery.getQuery("Dutys");
         queryDuties.whereMatchesQuery("user", innerquery);
+
+
+
         queryDuties.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
@@ -140,7 +145,9 @@ public class ProfileTab extends Fragment{
                     dutySize = objects.size();
 
                     for (ParseObject object : objects){
+
                         Duty d = new Duty(object, new AddParseobject());
+                        Log.v("duty", d.getDutyName());
 
                     }
                 }else{
@@ -271,46 +278,52 @@ public class ProfileTab extends Fragment{
         AbstractParseObject Myobject= null;
         @Override
         public void AddObject(AbstractParseObject object) {
+
             this.Myobject= object;
-            if (Myobject instanceof  Duty)
-                ((Duty)Myobject).getConversation(new AddParseObject() {
-                @Override
-                public void AddObject(AbstractParseObject object) {
+            if (Myobject instanceof  Duty) {
+                Log.v("duty",((Duty)object).getDutyName());
+                ((Duty) Myobject).getConversation(new AddParseObject() {
+                    @Override
+                    public void AddObject(AbstractParseObject object) {
 
-                    synchronized (finishedMap) {
+                        synchronized (finishedMap) {
 
-                        ArrayList<AbstractParseObject> list = new ArrayList<AbstractParseObject>();
-                        list.add(object);
-                        list.add((AbstractParseObject)Myobject);
-                        map.put(((Conversation)object).getConversationObjectId(), list);
-                        synchronized (dutySize) {
+                            ArrayList<AbstractParseObject> list = new ArrayList<AbstractParseObject>();
+                            list.add(object);
+                            list.add( Myobject);
+                            map.put(((Conversation) object).getConversationObjectId(), list);
+
                             dutySize--;
                             if (conversationSize + dutySize == 0) {
                                 AddMap();
+                                Log.v("AddMap","duty");
                             }
+
                         }
                     }
-                }
-            });
-            else { //Conversation
-                        synchronized (finishedMap) {
-                            ArrayList<AbstractParseObject> list = new ArrayList<AbstractParseObject>();
-                            list.add((AbstractParseObject)object);
-                            list.add(null);
-                            if (!map.containsKey(((Conversation)object).getConversationObjectId())) //in case already found duty
-                                map.put(((Conversation)object).getConversationObjectId(), list);
-                            synchronized (conversationSize) {
-                                conversationSize--;
-                                if (conversationSize + dutySize == 0) {
-                                    AddMap();
-                                }
-                            }
-                        }
-                    }
-                };
-
-
+                });
             }
+            else { //Conversation
+                Log.v("conversation",((Conversation)object).getConversationName());
+                synchronized (finishedMap) {
+                    ArrayList<AbstractParseObject> list = new ArrayList<AbstractParseObject>();
+                    list.add(object);
+                    list.add(null);
+                    if (!map.containsKey(((Conversation)object).getConversationObjectId())) //in case already found duty
+                        map.put(((Conversation)object).getConversationObjectId(), list);
+
+                    conversationSize--;
+                    if (conversationSize + dutySize == 0) {
+                        AddMap();
+                        Log.v("AddMap","conve");
+                    }
+
+                }
+            }
+        };
+
+
+    }
 
 
 

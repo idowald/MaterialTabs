@@ -23,7 +23,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 
+import info.androidhive.materialtabs.DB.DbHelper;
+import info.androidhive.materialtabs.DB.MessagesDB;
 import info.androidhive.materialtabs.activity.MessagingActivity;
 import info.androidhive.materialtabs.objects.Conversation;
 import info.androidhive.materialtabs.objects.Message;
@@ -98,6 +101,7 @@ public class MessagingService extends IntentService{
                     }
                     UpdateUIifExist(myMessage, senderUser);
 
+
                 }
 
                 public void errorCallback(String channel, PubnubError error) {
@@ -161,6 +165,10 @@ public class MessagingService extends IntentService{
     public void sendMessage(Message message, ArrayList<User> recipientsIds){
         //this binder is attached to sending messages class and it activated by it
         Log.v("sending"," SendMessage");
+        /**
+         * save message in local DB
+         */
+
         String toArray="";
 
 
@@ -182,6 +190,7 @@ public class MessagingService extends IntentService{
 
             });
         }
+
         message.CreateAndSaveNewParseObject();
 
         Log.v("finished class service","");
@@ -190,7 +199,7 @@ public class MessagingService extends IntentService{
 
 
 
-    public void ThrowNotification(Message myMessage){
+        public void ThrowNotification(Message myMessage){
 
 
         Intent resultIntent = new Intent(this, MessagingActivity.class);
