@@ -30,6 +30,7 @@ import java.util.List;
 import info.androidhive.materialtabs.DB.ConversationsDB;
 import info.androidhive.materialtabs.DB.DbHelper;
 import info.androidhive.materialtabs.DB.MessagesDB;
+import info.androidhive.materialtabs.MyNotificationManager;
 import info.androidhive.materialtabs.R;
 import info.androidhive.materialtabs.fragments.CaseTab;
 import info.androidhive.materialtabs.fragments.GroupTab;
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_icon_text_tabs);
 
+        DbHelper.TestMessages();
         //startActivity(new Intent(this, UserProfileActivity.class));
 
 
@@ -81,17 +83,7 @@ public class MainActivity extends AppCompatActivity  {
 
 
 
-
-/*creating department
-       final Conversation conversation = new Conversation(Conversation.Conversation_type.GROUP, "critical dep");
-        conversation.addReader(my_user);
-        new User("8DW4DHv102", new AddParseObject<User>() {
-            @Override
-            public void AddObject(User object) {
-                conversation.addReader(object);
-                conversation.CreateAndSaveNewParseObject();
-            }
-        });*/
+        //new MyNotificationManager(); test
 
 
 
@@ -295,6 +287,8 @@ public class MainActivity extends AppCompatActivity  {
                 intent.putExtras(bundle);
                 startActivity(intent);
                 return true;
+            case R.id.action_settings:
+              return true;
 
             default:
                 return super.onOptionsItemSelected(item);

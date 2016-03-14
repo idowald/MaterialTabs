@@ -49,8 +49,9 @@ public class GenerateFromExternalKey  implements GetCallback<ParseObject>{
             messagesDB.date= message.getDateObject();
             messagesDB.Text= message.getText();
             messagesDB.is_incoming = 1;
-            messagesDB.id= message.getObjectId();
+            messagesDB.id= message.GetObjectId();
             messagesDB.Conversation_id = message.getConversationObjectId();
+            messagesDB.is_new = 1;
 
             DbHelper.InsertMessage(messagesDB);
 

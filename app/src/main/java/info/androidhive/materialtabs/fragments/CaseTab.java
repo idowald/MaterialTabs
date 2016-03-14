@@ -71,7 +71,7 @@ public class CaseTab extends Fragment{
     private void setConversationsList() {
         conversations.clear();
         conversationArrayAdapter =
-                new ConversationAdapter(getActivity().getApplicationContext(), conversations, current_user);
+                new ConversationAdapter(getActivity().getApplicationContext(), current_user);
 
         ParseQuery<ParseObject> innerquery = ParseQuery.getQuery("Users");
 
@@ -95,7 +95,7 @@ public class CaseTab extends Fragment{
                     conversationListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> a, View v, int pos, long l) {
-                            openConversation(conversations.get(pos));
+                          //  openConversation(conversations.get(pos));
                         }
                     });
 

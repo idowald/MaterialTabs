@@ -44,7 +44,8 @@ public class SaveInBackGround  <T extends Parsable> implements SaveCallback {
                 messagesDB.date= message.getDateObject();
                 messagesDB.Text= message.getText();
                 messagesDB.is_incoming = 0;
-                messagesDB.id= message.getObjectId();
+                messagesDB.id= message.GetObjectId();
+                messagesDB.is_new = 0;
                 messagesDB.Conversation_id = message.getConversationObjectId();
 
                 DbHelper.InsertMessage(messagesDB);

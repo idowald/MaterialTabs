@@ -11,6 +11,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import info.androidhive.materialtabs.DB.DbHelper;
 import info.androidhive.materialtabs.R;
 import info.androidhive.materialtabs.objects.Message;
 import info.androidhive.materialtabs.objects.User;
@@ -144,6 +145,10 @@ public class ConversationMessagesAdapter extends BaseAdapter {
         users.put(user.getUserName(),user);
 
         notifyDataSetChanged(); //todo to make faster with parent.getChildAt
+
+        DbHelper.ReadMessage(message.GetObjectId());
+
+
 
     }
 

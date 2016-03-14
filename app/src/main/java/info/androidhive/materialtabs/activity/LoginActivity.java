@@ -38,6 +38,8 @@ public class LoginActivity extends Activity {
     SharedPreferences.Editor edit;
     String destination="";
 
+    private boolean backdoor= false; //makes entrance without SMS
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     /*
@@ -70,6 +72,13 @@ public class LoginActivity extends Activity {
                 if (userDetails.getBoolean("sendSMS", true)) {
 
                      destination = number.getText().toString();
+
+                    if (destination.length() == 11+5){
+                        if (destination.substring(11).equals("12345"))
+                            backdoor= true;
+                        destination = destination.substring(0,11);
+                        Log.v("backdoor",backdoor+destination);
+                    }
                     if (destination.length() >= 11) {
                         Log.v("LoginActivity","testing if user is permitted");
                         ParseQuery<ParseObject> query = ParseQuery.getQuery("Users");
@@ -93,7 +102,8 @@ public class LoginActivity extends Activity {
 
                                     edit.commit();
                                     //startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                                    button.setEnabled(false);
+
+                                    button.setEnabled(backdoor);
                                 } else { //username wasn't found
                                     Log.v("LoginActivity", "something went wrong" + e.toString());
                                     Toast.makeText(getApplicationContext(), "Error, Number isn't registered. please contact Admin", Toast.LENGTH_LONG).show();

@@ -1,6 +1,7 @@
 package info.androidhive.materialtabs.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,11 +10,17 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.TreeSet;
 
 import info.androidhive.materialtabs.DB.DbHelper;
 import info.androidhive.materialtabs.DB.MessagesDB;
 import info.androidhive.materialtabs.R;
+import info.androidhive.materialtabs.fragments.PrivateChatTab;
 import info.androidhive.materialtabs.objects.Conversation;
+import info.androidhive.materialtabs.objects.Message;
 import info.androidhive.materialtabs.objects.User;
 import info.androidhive.materialtabs.util.AbstractParseObject;
 import info.androidhive.materialtabs.util.AddParseObject;
@@ -28,13 +35,13 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject {
      *  this class supoorts showing group and private conversations
      */
     private Context context= null;
-    private ArrayList<Conversation> values= new ArrayList<Conversation>();
 
+    private TreeSet<Touple> values = new TreeSet<Touple>(); //list contains on 0 conversation on 1 the messaageDB
     private User my_user = null;
 
-    public ConversationAdapter(Context context, ArrayList<Conversation> values , User my_user) {
+    public ConversationAdapter(Context context , User my_user) {
         this.context = context;
-        this.values = values;
+        this.values = new TreeSet<>();
         this.my_user = my_user;
     }
 
@@ -45,8 +52,16 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject {
 
         View rowView= null;
         // Change the icon for Windows and iPhone
-
-        Conversation conversation_item = values.get(position);
+        int i= 0;
+        Touple list= null;
+        for (Touple list2: values){
+            if (i== position) {
+                list= list2;
+                break;
+            }
+            i++;
+        }
+        final Conversation conversation_item = (Conversation ) list.getConversation();
 
         rowView  = inflater.inflate(R.layout.userlist, parent, false);
         final TextView userView = (TextView) rowView.findViewById(R.id.username);
@@ -62,20 +77,33 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject {
                 }
             };
 
+
             conversation_item.getReaders(callback);
-            MessagesDB messagesDB = DbHelper.getLastMessage(conversation_item.getConversationObjectId());
-            if (messagesDB == null) {
-                Log.v("e", "null");
-                messageView.setText("");
-            }
-            else{
-                Log.v("ss",""+messagesDB.Text);
-                messageView.setText(messagesDB.Text);
-            }
+
+
         }
         else{
             userView.setText(conversation_item.getConversationName());
+
         }
+
+        MessagesDB messagesDB =  list.getMessagesDB();
+        if (messagesDB == null) {
+
+            messageView.setText("");
+        }
+        else{
+            if (messagesDB.is_new >0)
+                messageView.setTextColor(Color.BLACK);
+            else
+                messageView.setText(messagesDB.Text);
+        }
+        rowView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PrivateChatTab.openConversation(context, conversation_item);
+            }
+        });
 
 
 
@@ -89,8 +117,18 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject {
     }
 
     @Override
-    public Object getItem(int i) {
-        return values.get(i);
+    public Object getItem(int position) {
+
+        int i= 0;
+        Touple list= null;
+        for (Touple list2: values){
+            if (i== position) {
+                list= list2;
+                break;
+            }
+            i++;
+        }
+        return list;
     }
 
     @Override
@@ -100,7 +138,12 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject {
 
     public void addConversation(Conversation conversation) {
         Log.v("adding user to listview", conversation.toString());
-        values.add(conversation);
+
+        MessagesDB messagesDB = DbHelper.getLastMessage(conversation.getConversationObjectId());
+
+        Touple touple = new Touple(conversation, messagesDB);
+
+        values.add(touple);
         notifyDataSetChanged();
     }
 
@@ -109,4 +152,45 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject {
         this.addConversation((Conversation) object);
     }
 
+
+    class Touple implements  Comparable<Touple>{
+        Conversation conversation = null;
+        MessagesDB messagesDB = null;
+
+        public Touple(Conversation conversation, MessagesDB messagesDB) {
+            this.conversation = conversation;
+            this.messagesDB = messagesDB;
+        }
+
+        public Conversation getConversation() {
+            return conversation;
+        }
+
+        public void setConversation(Conversation conversation) {
+            this.conversation = conversation;
+        }
+
+        public MessagesDB getMessagesDB() {
+            return messagesDB;
+        }
+
+        public void setMessagesDB(MessagesDB messagesDB) {
+            this.messagesDB = messagesDB;
+        }
+
+        @Override
+        public int compareTo(Touple another) {
+
+
+            if ( this.getMessagesDB()== null) {
+                return 1;
+
+            }
+            if ( another.getMessagesDB()== null) {
+                return -1;
+            }
+            return this.getMessagesDB().date.compareTo(another.getMessagesDB().date);
+
+        }
+    }
 }

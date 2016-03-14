@@ -295,9 +295,7 @@ public class Message extends AbstractParseObject implements AddParseObjects{
     }
 
 
-    public String getObjectId() {
-        return messageObjectId;
-    }
+
 
     @Override
     public void SetObjectId(String objectId) {

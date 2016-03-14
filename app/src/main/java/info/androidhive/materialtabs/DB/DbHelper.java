@@ -10,6 +10,7 @@ import android.util.Log;
 import java.text.ParseException;
 
 import info.androidhive.materialtabs.MyApplication;
+import info.androidhive.materialtabs.objects.Message;
 
 /**
  * Created by ido on 27/02/2016.
@@ -23,7 +24,8 @@ public class DbHelper extends SQLiteOpenHelper{
             MessagesDB.Entries.DATE +" DATE," +
             MessagesDB.Entries.TEXT+ " CHAR(100),"+
             MessagesDB.Entries.IS_INCOMING+" INT,"+
-            MessagesDB.Entries.CONVERSATION_ID+ " char(50),"
+            MessagesDB.Entries.CONVERSATION_ID+ " char(50), " +
+            MessagesDB.Entries.IS_NEW + " INT DEFAULT(0), "
            +"FOREIGN KEY("+MessagesDB.Entries.CONVERSATION_ID+") REFERENCES "+ ConversationsDB.Entries.TABLE_NAME+"("+ConversationsDB.Entries.ID+")"+
             ");";
 
@@ -53,6 +55,16 @@ public class DbHelper extends SQLiteOpenHelper{
         onUpgrade(db, oldVersion, newVersion);
     }
 
+    public static void TestMessages(){
+        SQLiteDatabase db =new  DbHelper().getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("select "+ MessagesDB.Entries.ID +" from "+ MessagesDB.Entries.TABLE_NAME,null);
+        Log.v("starting db test","");
+        while (cursor.moveToNext()){
+            Log.v("message", cursor.getString(0));
+        }
+
+    }
     public static void ReadfromDB(){
         SQLiteDatabase db =new  DbHelper().getReadableDatabase();
 
@@ -92,6 +104,7 @@ public class DbHelper extends SQLiteOpenHelper{
         values.put(MessagesDB.Entries.DATE,MessagesDB.DATE_FORMAT.format(messagesDB.date));
         values.put(MessagesDB.Entries.IS_INCOMING,messagesDB.is_incoming);
         values.put(MessagesDB.Entries.CONVERSATION_ID, messagesDB.Conversation_id);
+        values.put(MessagesDB.Entries.IS_NEW, messagesDB.is_new);
 
         db.insert(MessagesDB.Entries.TABLE_NAME,"NULL",values);
 
@@ -110,6 +123,7 @@ public class DbHelper extends SQLiteOpenHelper{
                 MessagesDB.Entries.TEXT,
                 MessagesDB.Entries.DATE,
                 MessagesDB.Entries.CONVERSATION_ID,
+                MessagesDB.Entries.IS_NEW,
 
         };
 
@@ -140,8 +154,27 @@ public class DbHelper extends SQLiteOpenHelper{
             e.printStackTrace();
         }
         messagesDB.Conversation_id= cursor.getString(4);
+        messagesDB.is_new= cursor.getInt(5);
 
         return messagesDB;
+
+
+
+    }
+    public static void ReadMessage(String messageID){
+        /**
+         * this method takes the message object id and turn the message to not new in db
+         */
+
+        DbHelper helper = new DbHelper();
+        SQLiteDatabase db = helper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(MessagesDB.Entries.IS_NEW, 0);
+
+        db.update(MessagesDB.Entries.TABLE_NAME,values,MessagesDB.Entries.ID + " = '"+ messageID+"'", null);
+
+        db.insert(MessagesDB.Entries.TABLE_NAME,"NULL",values);
 
 
 

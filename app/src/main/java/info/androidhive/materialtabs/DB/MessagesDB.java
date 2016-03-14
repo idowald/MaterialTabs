@@ -15,6 +15,7 @@ public final class MessagesDB {
     public int is_incoming= 0;
     public Date date= new Date();
     public String Conversation_id="";
+    public int is_new =0;
 
     public MessagesDB(){}
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -26,6 +27,7 @@ public final class MessagesDB {
         public static final String IS_INCOMING= "isIncoming";
         public static final String DATE= "date";
         public static final String CONVERSATION_ID="conversationId";
+        public static final String IS_NEW = "IS_NEW";
 
 
     }

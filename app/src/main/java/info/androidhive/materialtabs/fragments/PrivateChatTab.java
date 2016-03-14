@@ -76,7 +76,7 @@ public class PrivateChatTab extends Fragment{
     private void setConversationsList() {
         conversations.clear();
         conversationArrayAdapter =
-                new ConversationAdapter(getActivity().getApplicationContext(), conversations, currentUserId);
+                new ConversationAdapter(getActivity().getApplicationContext(), currentUserId);
 
         ParseQuery<ParseObject> innerquery = ParseQuery.getQuery("Users");
 
@@ -102,7 +102,7 @@ public class PrivateChatTab extends Fragment{
                         @Override
                         public void onItemClick(AdapterView<?> a, View v, int pos, long l) {
                              selected_conversation =conversations.get(pos);
-                            openConversation(v.getContext() ,selected_conversation);
+                            //openConversation(v.getContext() ,selected_conversation);
                         }
                     });
 
