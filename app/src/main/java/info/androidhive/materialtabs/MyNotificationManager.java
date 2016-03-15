@@ -18,6 +18,7 @@ public class MyNotificationManager {
  *      1. if silenced chat (from ConversationDB) no alert.
  *      2. else, alert.
  * if Group/Case conversation message:
+ *      if switched off MyPrefrences- then no alerts at all
  *      1.important message: alert.
  *      2.if regular message:
  *                          1.if person is registered to case "inDuty" (cloud parse)-> alert
@@ -27,12 +28,12 @@ public class MyNotificationManager {
  *
  *
  */
-private AlarmManager alarmMgr;
+    private AlarmManager alarmMgr;
     private PendingIntent alarmIntent;
+    Context context = null;
+    public MyNotificationManager(){
 
-public MyNotificationManager(){
-
-    Context context = MyApplication.getAppContext();
+        context = MyApplication.getAppContext();
     alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     Intent intent = new Intent(context, AlarmReceiver.class);
     alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);

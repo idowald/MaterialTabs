@@ -23,4 +23,7 @@
     <string name="urgent">חשוב!</string>
     <string name="not_urgent">לא דחוף</string>
     <string name="alert_interval">מרווח הקפצת התראה</string>
+    <string name="notification">התראות</string>
+    <string name="minutes">דקות</string>
+    <string name="save">שמור</string>
 </resources>

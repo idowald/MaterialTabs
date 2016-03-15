@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CONDOC</string>
+    <string name="action_settings">Settings</string>
+    <string name="alert_interval">alert interval time</string>
+    <string name="btn_custom_icon_tabs"></string>
+    <string name="conversation_name_menu">conversation name</string>
+    <string name="created_by">created by</string>
+    <string name="departments">departmnets</string>
+    <string name="group_praticipating">praticipating</string>
+    <string name="hello_world"></string>
+    <string name="in_duty">In Duty</string>
+    <string name="insert_phone">please insert phone number</string>
+    <string name="is_remark">is urgent?</string>
+    <string name="loginText">Login</string>
+    <string name="message_elipses">Message...</string>
+    <string name="minutes">minutes</string>
+    <string name="not_urgent">not urgent</string>
+    <string name="notification">notifications</string>
+    <string name="remark_content">remark content</string>
+    <string name="remarks">remarks</string>
+    <string name="roles">roles</string>
+    <string name="save">save</string>
+    <string name="tab0_main">Main</string>
+    <string name="tab1_private">private chat</string>
+    <string name="tab2_case">Case chat</string>
+    <string name="tab3_group">group chat</string>
+    <string name="update">update</string>
+    <string name="urgent">urgent!</string>
+</resources>

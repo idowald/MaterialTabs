@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
+        android:text="@string/alert_interval"
         android:id="@+id/textView3"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
@@ -28,9 +28,53 @@
         android:layout_height="wrap_content"
         android:inputType="numberDecimal"
         android:ems="10"
-        android:id="@+id/editText2"
+        android:id="@+id/interval_editText"
         android:digits="0123456789"
 
-        android:layout_alignTop="@+id/textView3"
-        android:layout_toRightOf="@+id/textView3" />
+        android:layout_alignBottom="@+id/textView3"
+        android:layout_toRightOf="@+id/save_button"
+        android:layout_toEndOf="@+id/save_button" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/notification"
+        android:id="@+id/switch1"
+        android:layout_below="@+id/interval_editText"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="42dp"
+        android:checked="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/minutes"
+        android:id="@+id/textView4"
+        android:layout_above="@+id/switch1"
+        android:layout_alignLeft="@+id/interval_editText"
+        android:layout_alignStart="@+id/interval_editText"
+        android:layout_marginLeft="48dp"
+        android:layout_marginStart="48dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save"
+        android:id="@+id/save_button"
+        android:layout_below="@+id/switch1"
+        android:layout_toRightOf="@+id/textView3"
+        android:layout_toEndOf="@+id/textView3"
+        android:layout_marginTop="165dp" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/language_spinner"
+        android:layout_below="@+id/switch1"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="40dp" />
+
 </RelativeLayout>
