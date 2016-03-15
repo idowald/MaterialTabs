@@ -279,7 +279,7 @@ public class MainActivity extends AppCompatActivity  {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        new Locale
+
         switch (item.getItemId()) {
             case R.id.search:
                 Intent intent = new Intent(this, SearchActivity.class);
