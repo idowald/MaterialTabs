@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import java.util.Locale;
 
@@ -41,7 +42,8 @@ public class settingsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        intervalText = (EditText) findViewById(R.id.interval_editText);
+        intervalText = (EditText) findViewById(R.id.interval_time);
+
         notificationSwitch = (CheckBox) findViewById(R.id.switch1);
         LanguageSpinner = (Spinner) findViewById(R.id.language_spinner);
 
@@ -54,6 +56,11 @@ public class settingsActivity extends AppCompatActivity {
         save_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (intervalText.getText().length()== 0) //no input
+                {
+                    Toast.makeText(v.getContext(),"please enter interval time",Toast.LENGTH_LONG).show();
+                    return;
+                }
                 SharedPreferences preferences = v.getContext().getSharedPreferences(ALERT_TEXT,v.getContext().MODE_PRIVATE );
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putInt(INTERVAL_KEY,Integer.parseInt(intervalText.getText().toString()) );
@@ -61,10 +68,10 @@ public class settingsActivity extends AppCompatActivity {
                 editor.commit();
                 String language = null;
                 switch (LanguageSpinner.getSelectedItemPosition()){
-                    case (0): //hebrew
+                    case (1): //hebrew
                         language= "he";
                         break;
-                    case(1) : //english
+                    case(0) : //english
                         language = "en";
                         break;
                     default :
@@ -72,18 +79,20 @@ public class settingsActivity extends AppCompatActivity {
                 }
                 LanguagePrefrences.setLanguagesPrefrences(language);
 
+                Toast.makeText(v.getContext(),"saved",Toast.LENGTH_LONG).show();
+
             }
         });
 
-        intervalText.setText(getIntervalTime());
+        intervalText.setText(""+getIntervalTime());
         notificationSwitch.setChecked(isNotificationOn());
         String language = LanguagePrefrences.getLanguagePrefrences();
         if (language.startsWith("he")||language.startsWith("iw") )
         {
-            LanguageSpinner.setSelection(0);
+            LanguageSpinner.setSelection(1);
         }
         else{
-            LanguageSpinner.setSelection(1);
+            LanguageSpinner.setSelection(0);
         }
 
 
