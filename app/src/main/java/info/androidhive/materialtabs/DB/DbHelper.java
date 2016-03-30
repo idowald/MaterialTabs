@@ -8,8 +8,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 
 import info.androidhive.materialtabs.MyApplication;
+import info.androidhive.materialtabs.MyNotificationManager;
+import info.androidhive.materialtabs.objects.Conversation;
 import info.androidhive.materialtabs.objects.Message;
 
 /**
@@ -25,13 +28,15 @@ public class DbHelper extends SQLiteOpenHelper{
             MessagesDB.Entries.TEXT+ " CHAR(100),"+
             MessagesDB.Entries.IS_INCOMING+" INT,"+
             MessagesDB.Entries.CONVERSATION_ID+ " char(50), " +
-            MessagesDB.Entries.IS_NEW + " INT DEFAULT(0), "
+            MessagesDB.Entries.EXTERNAL_KEY + " CHAR(50), "
+            + MessagesDB.Entries.IS_NEW + " INT DEFAULT(0), "
            +"FOREIGN KEY("+MessagesDB.Entries.CONVERSATION_ID+") REFERENCES "+ ConversationsDB.Entries.TABLE_NAME+"("+ConversationsDB.Entries.ID+")"+
             ");";
 
     public static final String SQL_CREATE_ENTRIES_CONVERSATIONS= "CREATE TABLE "+ ConversationsDB.Entries.TABLE_NAME+"(" +
-            ConversationsDB.Entries.ID +" CHAR(50) PRIMARY KEY NOT NULL," +
-            ConversationsDB.Entries.CONVERSATION_NAME+" CHAR(50)"+
+            ConversationsDB.Entries.ID +" CHAR(50) PRIMARY KEY NOT NULL, " +
+            ConversationsDB.Entries.CONVERSATION_NAME+" CHAR(50), "+
+            ConversationsDB.Entries.ISSILENCED+" INT DEFAULT(0) "+
             ");";
 
     public static final String SQL_DELETE_ENTRIES="drop table "+ MessagesDB.Entries.TABLE_NAME+";"+
@@ -73,6 +78,7 @@ public class DbHelper extends SQLiteOpenHelper{
         String[] projection = {
                 ConversationsDB.Entries.ID,
                 ConversationsDB.Entries.CONVERSATION_NAME,
+                ConversationsDB.Entries.ISSILENCED
 
         };
 
@@ -90,6 +96,7 @@ public class DbHelper extends SQLiteOpenHelper{
                 sortOrder                                 // The sort order
         );
         cursor.moveToFirst();
+
         Log.e("count of db"," "+ cursor.getCount());
 
     }
@@ -105,11 +112,16 @@ public class DbHelper extends SQLiteOpenHelper{
         values.put(MessagesDB.Entries.IS_INCOMING,messagesDB.is_incoming);
         values.put(MessagesDB.Entries.CONVERSATION_ID, messagesDB.Conversation_id);
         values.put(MessagesDB.Entries.IS_NEW, messagesDB.is_new);
+        values.put(MessagesDB.Entries.EXTERNAL_KEY, messagesDB.external_key);
 
         db.insert(MessagesDB.Entries.TABLE_NAME,"NULL",values);
 
+        helper.close();
+
 
     }
+
+
     public static MessagesDB getLastMessage(String conversation_id){
 
 
@@ -156,6 +168,9 @@ public class DbHelper extends SQLiteOpenHelper{
         messagesDB.Conversation_id= cursor.getString(4);
         messagesDB.is_new= cursor.getInt(5);
 
+        db.close();
+
+
         return messagesDB;
 
 
@@ -172,11 +187,103 @@ public class DbHelper extends SQLiteOpenHelper{
 
         values.put(MessagesDB.Entries.IS_NEW, 0);
 
-        db.update(MessagesDB.Entries.TABLE_NAME,values,MessagesDB.Entries.ID + " = '"+ messageID+"'", null);
+        db.update(MessagesDB.Entries.TABLE_NAME ,values, MessagesDB.Entries.ID + " = '"+ messageID+"'", null);
 
-        db.insert(MessagesDB.Entries.TABLE_NAME,"NULL",values);
+        //db.insert(MessagesDB.Entries.TABLE_NAME,"NULL",values);
 
+        db = helper.getReadableDatabase();
+
+        String[] projection = {
+                MessagesDB.Entries.EXTERNAL_KEY
+
+        };
+
+
+
+
+        Cursor cursor = db.query(
+                MessagesDB.Entries.TABLE_NAME,  // The table to query
+                projection,                               // The columns to return
+                MessagesDB.Entries.ID +"=?",                                // The columns for the WHERE clause
+                new String[]{ messageID },                            // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                 // The sort order
+        );
+        cursor.moveToFirst();
+
+        String external_key= cursor.getString(0);
+
+        helper.close();
+
+
+
+        MyNotificationManager.RemoveNotification(external_key);
 
 
     }
+
+    public static boolean isSilenced(String Conversation_id){
+
+        SQLiteDatabase db =new  DbHelper().getReadableDatabase();
+
+// Define a projection that specifies which columns from the database
+// you will actually use after this query.
+        String[] projection = {
+                ConversationsDB.Entries.ISSILENCED
+
+        };
+
+
+        Cursor cursor = db.query(
+                ConversationsDB.Entries.TABLE_NAME,  // The table to query
+                projection,                               // The columns to return
+                ConversationsDB.Entries.ID +" = ?",                                // The columns for the WHERE clause
+                new String[]{Conversation_id},                            // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                 // The sort order
+        );
+        cursor.moveToFirst();
+        Boolean isSilenced= cursor.getInt(0)==1;
+        db.close();
+
+        return isSilenced;
+    }
+
+    public static ArrayList<Message> getUnreadMeassages(){
+        //todo implement and attach to mynotification instead of hashmap
+        SQLiteDatabase db =new  DbHelper().getReadableDatabase();
+/*
+// Define a projection that specifies which columns from the database
+// you will actually use after this query.
+        String[] projection = {
+                MessagesDB.Entries.ID,
+                MessagesDB.Entries.EXTERNAL_KEY,
+                MessagesDB.Entries.DATE,
+                MessagesDB.Entries.TEXT,
+                MessagesDB.Entries.CONVERSATION_ID
+
+        };
+
+
+        Cursor cursor = db.query(
+                ConversationsDB.Entries.TABLE_NAME,  // The table to query
+                projection,                               // The columns to return
+                ConversationsDB.Entries.ID +" = ?",                                // The columns for the WHERE clause
+                new String[]{Conversation_id},                            // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                 // The sort order
+        );
+        cursor.moveToFirst();*/
+
+
+        return null;
+    }
+
+
+
+
+
 }

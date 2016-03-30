@@ -82,7 +82,7 @@ public class GenerateFromUserName implements GetCallback<ParseObject>{
 
                     } else {
                       //not exist nor on local or db!
-                        e.printStackTrace();
+                        Log.e("error",e.getMessage());
                     }
                 }
             });

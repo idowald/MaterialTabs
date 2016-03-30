@@ -72,7 +72,7 @@
             android:enabled="true" />
 
         <activity
-            android:name=".activity.settingsActivity"
+            android:name=".activity.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".activity.MainActivity"
             android:theme="@style/MyMaterialTheme">

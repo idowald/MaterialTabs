@@ -15,6 +15,7 @@ public final class MessagesDB {
     public int is_incoming= 0;
     public Date date= new Date();
     public String Conversation_id="";
+    public String external_key= "";
     public int is_new =0;
 
     public MessagesDB(){}
@@ -28,6 +29,7 @@ public final class MessagesDB {
         public static final String DATE= "date";
         public static final String CONVERSATION_ID="conversationId";
         public static final String IS_NEW = "IS_NEW";
+        public static final String EXTERNAL_KEY = "externalKey";
 
 
     }

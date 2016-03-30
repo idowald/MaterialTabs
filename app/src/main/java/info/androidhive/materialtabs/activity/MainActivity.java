@@ -23,25 +23,21 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 
 import info.androidhive.materialtabs.DB.ConversationsDB;
 import info.androidhive.materialtabs.DB.DbHelper;
 import info.androidhive.materialtabs.DB.MessagesDB;
-import info.androidhive.materialtabs.MyNotificationManager;
+import info.androidhive.materialtabs.MyApplication;
 import info.androidhive.materialtabs.R;
 import info.androidhive.materialtabs.fragments.CaseTab;
 import info.androidhive.materialtabs.fragments.GroupTab;
 import info.androidhive.materialtabs.fragments.PrivateChatTab;
 import info.androidhive.materialtabs.fragments.ProfileTab;
-import info.androidhive.materialtabs.objects.Case;
 import info.androidhive.materialtabs.objects.Conversation;
 //import info.androidhive.materialtabs.objects.Department;
-import info.androidhive.materialtabs.objects.Duty;
 import info.androidhive.materialtabs.objects.Message;
-import info.androidhive.materialtabs.objects.Remark;
 import info.androidhive.materialtabs.objects.User;
 import info.androidhive.materialtabs.util.AbstractParseObject;
 import info.androidhive.materialtabs.util.AddParseObject;
@@ -67,7 +63,7 @@ public class MainActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_icon_text_tabs);
 
-        DbHelper.TestMessages();
+       // DbHelper.TestMessages();
         //startActivity(new Intent(this, UserProfileActivity.class));
 
 
@@ -77,7 +73,10 @@ public class MainActivity extends AppCompatActivity  {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
+
         setUser();
+        if (my_user == null)
+            return;
         //CreatingNewPrivateConversations();
         setupViewPager(viewPager);
 
@@ -103,9 +102,13 @@ public class MainActivity extends AppCompatActivity  {
         query.findInBackground(new FindCallback<ParseObject>() {
                                    @Override
                                    public void done(List<ParseObject> objects, ParseException e) {
+                                       if (true)
+                                           return;
                                        if (e== null){
-                                          if (true)
-                                              return;
+                                      /*
+                                      this script put all conversations in dbHelper only on first startup
+                                       */
+
                                            DbHelper helper = new DbHelper();
                                            final SQLiteDatabase db = helper.getWritableDatabase();
                                            for (ParseObject object: objects){
@@ -151,13 +154,18 @@ public class MainActivity extends AppCompatActivity  {
         ParseQuery.or(messages_queries).findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
+
+               if (true)
+                   return;
                 if (e== null){
-                    if(true)
-                        return;
+                 /*
+                 inflate dbhelper with messages only on first start up
+                  */
+
                       DbHelper helper = new DbHelper();
                     final SQLiteDatabase db = helper.getWritableDatabase();
                     for (ParseObject object: objects){
-                        Message message = new Message(object, new AddParseObject() {
+                        new Message(object, new AddParseObject() {
                             @Override
                             public void AddObject(AbstractParseObject object) {
                                 Message message = (Message) object;
@@ -192,16 +200,18 @@ public class MainActivity extends AppCompatActivity  {
         { //no user registered yet.
             startActivity(new Intent(this,LoginActivity.class));
             finish();
-        }
-        AddParseObject callback = new AddParseObject() {
-            @Override
-            public void AddObject(AbstractParseObject object) {
+        } else {
+            AddParseObject callback = new AddParseObject() {
+                @Override
+                public void AddObject(AbstractParseObject object) {
 
-               // Duty duty = new Duty("doing dishes", object);
-               // duty.CreateAndSaveNewParseObject();
-            }
-        };
-         my_user = new User(first_name,last_name,username, callback);
+                    // Duty duty = new Duty("doing dishes", object);
+                    // duty.CreateAndSaveNewParseObject();
+                }
+            };
+            my_user = new User(first_name, last_name, username, callback);
+            MyApplication.user = my_user;
+        }
 /*        final Department department = new Department("Clinic");
         department.GetConversation(new AddParseObject<Conversation>() {
 
@@ -290,7 +300,7 @@ public class MainActivity extends AppCompatActivity  {
                 return true;
             case R.id.action_settings:
 
-                startActivity(new Intent(this, settingsActivity.class));
+                startActivity(new Intent(this, SettingsActivity.class));
               return true;
 
             default:

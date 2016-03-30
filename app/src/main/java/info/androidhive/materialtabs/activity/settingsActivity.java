@@ -23,7 +23,7 @@ import info.androidhive.materialtabs.LanguagePrefrences;
 import info.androidhive.materialtabs.MyApplication;
 import info.androidhive.materialtabs.R;
 
-public class settingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     static final String ALERT_TEXT= "MY_SHARED_PREFRENCES";
     static final String INTERVAL_KEY= "MY_INTERVAL_KEY";

@@ -112,9 +112,10 @@ public class Message extends AbstractParseObject implements AddParseObjects{
             from = new User(message);
             fromUserName= message.getString("fromUserName");
             //from= message.getString("from");
+
             String arrayTo=  message.getString("to"); //getting list of userNames with | between each one
             AddParseObject callback = null;
-            for (String userName : new ArrayList<String>(Arrays.asList(arrayTo.split("|")))){
+            for (String userName : new ArrayList<String>(Arrays.asList(arrayTo.split("#")))){
                 to.add(new User("","",userName, callback)); //again it's not important the userNames to be get fast
             }
 

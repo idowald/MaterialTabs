@@ -181,6 +181,8 @@ public class Duty extends AbstractParseObject{
         return inDuty;
     }
 
+    public boolean isInDuty(){ return this.inDuty.equals("true") ; }
+
     public void setInDuty(Boolean inDuty) {
         this.inDuty = inDuty? "true": "false";
     }

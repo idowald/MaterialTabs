@@ -1,6 +1,7 @@
 package info.androidhive.materialtabs.activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +24,7 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import info.androidhive.materialtabs.MessagingService;
 import info.androidhive.materialtabs.R;
 import info.androidhive.materialtabs.objects.User;
 import info.androidhive.materialtabs.util.SendSMS;
@@ -73,16 +75,18 @@ public class LoginActivity extends Activity {
 
                      destination = number.getText().toString();
 
-                    if (destination.length() == 11+5){
-                        if (destination.substring(11).equals("12345"))
+                    if (destination.length() == 12+5){
+                        if (destination.substring(12).equals("12345"))
                             backdoor= true;
-                        destination = destination.substring(0,11);
+                        destination = destination.substring(0,12);
                         Log.v("backdoor",backdoor+destination);
+
+
                     }
-                    if (destination.length() >= 11) {
+                    if (destination.length() >= 12) {
                         Log.v("LoginActivity","testing if user is permitted");
                         ParseQuery<ParseObject> query = ParseQuery.getQuery("Users");
-                        //query.whereEqualTo("username",destination);
+                        query.whereEqualTo("userName",destination);
 
                         query.getFirstInBackground(new GetCallback<ParseObject>() {
 
@@ -90,7 +94,8 @@ public class LoginActivity extends Activity {
                             public void done(ParseObject parseObject, ParseException e) {
                                 if (e == null) {
                                     Log.v("LoginActivity", "user found sending secret code");
-                                    new SendSMS(destination, "CONDOC!"+password).start();
+                                    if (!backdoor)
+                                        new SendSMS(destination, "CONDOC!"+password).start();
 
                                    // SendSMS(destination, "CONDOC code! " + password);
                                     edit.putBoolean("sendSMS", false);
@@ -103,9 +108,26 @@ public class LoginActivity extends Activity {
                                     edit.commit();
                                     //startActivity(new Intent(getApplicationContext(),MainActivity.class));
 
-                                    button.setEnabled(backdoor);
+                                    button.setEnabled(false);
+                                    if (backdoor){
+
+                                        SharedPreferences userDetails =getSharedPreferences("userdetails", MODE_PRIVATE);
+                                        SharedPreferences.Editor edit = userDetails.edit();
+
+
+
+                                            edit.putBoolean("login", true);
+
+                                            edit.commit();
+                                            Intent intent2 = new Intent(getApplicationContext(),MainActivity.class);
+                                            intent2.addFlags(intent2.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(intent2);
+                                        startService(new Intent(getApplicationContext(),MessagingService.class));
+
+                                        }
+
                                 } else { //username wasn't found
-                                    Log.v("LoginActivity", "something went wrong" + e.toString());
+                                    Log.e("LoginActivity", "something went wrong" + e.toString());
                                     Toast.makeText(getApplicationContext(), "Error, Number isn't registered. please contact Admin", Toast.LENGTH_LONG).show();
                                 }
                             }

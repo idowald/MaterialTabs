@@ -51,6 +51,7 @@ public class User extends AbstractParseObject{
         /**
          * this is used by Messaging service to get a fast UI with the instance!
          */
+
             this(user.getString("fromFirstName"),user.getString("fromLastName"),user.getString("fromUserName"), user.getString("fromObjectId"));
 
     }

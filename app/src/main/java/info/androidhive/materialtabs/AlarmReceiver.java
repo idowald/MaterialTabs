@@ -20,8 +20,12 @@ import info.androidhive.materialtabs.util.AddParseObject;
 public class AlarmReceiver extends BroadcastReceiver{
     /*
     this class gets notification alert from the alarm and pop the notification by the selected interval from mynotification manager
+
+     the notification get message from service and load notification.
+     this class only trigger the notifcation manager to check if there are unhandled messages
+     the notification manager will go over all the messages he have and test them on AddNotification Algorithm
      */
-    private Context context = null;
+
     private Message message =null;
     private String messageText= "";
     final static String MESSAGE= "message";
@@ -31,10 +35,12 @@ public class AlarmReceiver extends BroadcastReceiver{
     @Override
     public void onReceive(final Context context, Intent intent) {
         Toast.makeText(context,"alarm received!", Toast.LENGTH_LONG).show();
-        this.context= context;
+
         Bundle bundle = intent.getExtras();
         message = (Message) bundle.getSerializable(MESSAGE);
-        messageText = message.getText();
+
+        MyNotificationManager.CheckNotification(message);
+        /*messageText = message.getText();
 
 
         //getting the conversation for the message
@@ -75,7 +81,7 @@ public class AlarmReceiver extends BroadcastReceiver{
                     }
                 });
             }
-        });
+        });*/
 
 
 

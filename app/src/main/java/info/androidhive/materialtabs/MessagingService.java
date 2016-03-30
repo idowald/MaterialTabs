@@ -90,9 +90,10 @@ public class MessagingService extends IntentService{
                 public void successCallback(String channel, Object message) {
 
                     Message myMessage =new Message((JSONObject)message);
-                    if (myMessage.isUrgent() | myMessage.getConversationType() == Conversation.Conversation_type.PRIVATE) {
-                       ThrowNotification(myMessage); //TODO add this
-                    }
+                    /*if (myMessage.isUrgent() | myMessage.getConversationType() == Conversation.Conversation_type.PRIVATE) {
+                       ThrowNotification(myMessage);
+                    }*/
+                    MyNotificationManager.AddNotification(myMessage);
                     User senderUser = null;
                     try {
                         senderUser = new User((JSONObject) message);
@@ -176,7 +177,7 @@ public class MessagingService extends IntentService{
         /* Publish a message to channel */
         for(User recipient : recipientsIds) {
             if (recipient.getUserName().compareTo(Myusername)!= 0)
-            toArray += recipient.getUserName() + "|";
+            toArray += recipient.getUserName() + "#";
         }
         if (toArray.length() <0)
             return; //empty to
