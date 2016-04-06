@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.TreeSet;
 
 import info.androidhive.materialtabs.MessagingService;
 import info.androidhive.materialtabs.R;
@@ -92,7 +93,7 @@ public class MessagingActivity extends AppCompatActivity {
 
     //for adapter
 
-    ArrayList<Message> values = new ArrayList<Message>();
+    TreeSet<Message> values = new TreeSet<Message>();
     protected void onCreate(Bundle savedInstanceState) {
         // this program will get the intent with a code: http://stackoverflow.com/questions/14695537/android-update-activity-ui-from-service
 

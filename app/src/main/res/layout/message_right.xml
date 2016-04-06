@@ -6,7 +6,8 @@
                 android:padding="10dp">
 
     <RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
-                    android:layout_marginLeft="10dp">
+                    android:layout_marginLeft="10dp"
+        android:id="@+id/relativeLayout2">
         <TextView
                 android:id="@+id/txtSender"
                 android:layout_width="wrap_content"
@@ -40,7 +41,7 @@
                 android:layout_alignParentRight="true"
                 android:padding="12dp"
                 android:background="@color/blue_message"
-                >
+            android:id="@+id/relativeLayout3">
 
             <TextView
                 android:id="@+id/SenderName_right"
@@ -65,5 +66,16 @@
                     />
 
         </RelativeLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Small Text"
+            android:id="@+id/date"
+            android:layout_below="@+id/relativeLayout3"
+            android:layout_toRightOf="@+id/txtDate"
+            android:layout_toEndOf="@+id/txtDate" />
     </RelativeLayout>
+
 </RelativeLayout>

@@ -8,9 +8,13 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.TreeSet;
 
 import info.androidhive.materialtabs.DB.DbHelper;
@@ -32,12 +36,16 @@ public class ConversationMessagesAdapter extends BaseAdapter {
 
    // private ArrayList<Message> values= new ArrayList<Message>();
     private HashMap<String,User> users= new HashMap<String,User>();
-    private TreeSet<Message> values= new TreeSet<>(new Comparator() {
+    Comparator<Message> comparator = new Comparator<Message>() {
         @Override
-        public int compare(Object lhs, Object rhs) {
-            return 0;
+        public int compare(Message lhs, Message rhs) {
+            Date d1 = lhs.getDateObject();
+            Date d2 = rhs.getDateObject();
+            int result = d1.compareTo(d2);
+            return result;
         }
-    });
+    };
+    private TreeSet<Message> values= new TreeSet<Message>();
 
     private  User user= null;
 
@@ -51,34 +59,38 @@ public class ConversationMessagesAdapter extends BaseAdapter {
     }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
-        User sending_user = users.get(values.get(position).fromUserName);
+        Iterator<Message> iterator = values.iterator();
+        Message  message = iterator.next();
+        for (int i=0; i< position; i++)
+            message= iterator.next();
+        User sending_user = users.get(message.fromUserName);
 
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View rowView= null;
-        rowView  = inflater.inflate(R.layout.message_left, parent, false);
+
         //for each message it checks if it's my user or other one
         TextView textView= null;
         TextView senderView = null;
-        try {
+        TextView dateView= null;
+
             if (user.compareTo(sending_user) == 0) {
                 rowView = inflater.inflate(R.layout.message_right, parent, false);
                 textView = (TextView) rowView.findViewById(R.id.Sendertxt_right);
                 senderView = (TextView) rowView.findViewById(R.id.SenderName_right);
+                dateView=  (TextView) rowView.findViewById(R.id.date);
 
             } else {
                 rowView = inflater.inflate(R.layout.message_left, parent, false);
                 textView = (TextView) rowView.findViewById(R.id.txtSender_left);
                 senderView = (TextView) rowView.findViewById(R.id.SenderName_left);
-                //TextView dateView = (TextView) rowView.findViewById(R.id.txtDate);
+                dateView=  (TextView) rowView.findViewById(R.id.date);
             }
-        }catch (Exception e2){
-                Log.v("what?","");
-            }
+
         senderView.setText(sending_user.getFirstName() + sending_user.getLastName());
-        textView.setText(values.get(position).getText());
+        textView.setText(message.getText());
+        dateView.setText(message.getDate());
 
 
        // values.get(position).getFrom(new inflateViewWithUsers(user,inflater,position, parent,rowView ));
@@ -137,7 +149,11 @@ public class ConversationMessagesAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int i) {
-        return values.get(i);
+        Iterator<Message> iterator = values.iterator();
+        Message message = iterator.next();
+        for (int count=0; count< i; count++)
+            message= iterator.next();
+        return message;
     }
 
     @Override
@@ -156,6 +172,12 @@ public class ConversationMessagesAdapter extends BaseAdapter {
         notifyDataSetChanged(); //todo to make faster with parent.getChildAt
 
         DbHelper.ReadMessage(message.GetObjectId());
+
+        if(values.size() == 100)
+        {
+
+            Log.v("values ", values.size()+"");
+        }
 
 
 
