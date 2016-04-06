@@ -5,6 +5,7 @@ import com.parse.SaveCallback;
 
 import info.androidhive.materialtabs.DB.DbHelper;
 import info.androidhive.materialtabs.DB.MessagesDB;
+import info.androidhive.materialtabs.MyApplication;
 import info.androidhive.materialtabs.objects.Message;
 
 /**
@@ -40,12 +41,14 @@ public class SaveInBackGround  <T extends Parsable> implements SaveCallback {
             object.SetObjectId(parseObject.getObjectId());
             if (object instanceof Message){
                 Message message = (Message) object;
+
                 MessagesDB messagesDB = new MessagesDB();
                 messagesDB.date= message.getDateObject();
                 messagesDB.Text= message.getText();
-                messagesDB.is_incoming = 0;
+
+                messagesDB.is_incoming = message.isIncoming(MyApplication.user.getUserName())?1:0;
                 messagesDB.id= message.GetObjectId();
-                messagesDB.is_new = 0;
+                messagesDB.is_new = message.isNew()?1:0;
                 messagesDB.Conversation_id = message.getConversationObjectId();
 
                 DbHelper.InsertMessage(messagesDB);

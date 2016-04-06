@@ -9,7 +9,9 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.TreeSet;
 
 import info.androidhive.materialtabs.DB.DbHelper;
 import info.androidhive.materialtabs.R;
@@ -27,12 +29,19 @@ public class ConversationMessagesAdapter extends BaseAdapter {
     //search in the users list the correct user to each key
 
     private  Context context;
-    private ArrayList<Message> values= new ArrayList<Message>();
+
+   // private ArrayList<Message> values= new ArrayList<Message>();
     private HashMap<String,User> users= new HashMap<String,User>();
+    private TreeSet<Message> values= new TreeSet<>(new Comparator() {
+        @Override
+        public int compare(Object lhs, Object rhs) {
+            return 0;
+        }
+    });
 
     private  User user= null;
 
-    public ConversationMessagesAdapter(Context context,ArrayList<Message> values,User my_user) {
+    public ConversationMessagesAdapter(Context context,TreeSet<Message> values,User my_user) {
 
         this.context = context;
         this.values = values;

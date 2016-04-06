@@ -71,6 +71,11 @@ public class Message extends AbstractParseObject implements AddParseObjects{
     private ArrayList<User> to= new ArrayList<User>();//many to many
     private String text="";
     private boolean isUrgent= false;
+
+    public void setNew(boolean aNew) {
+        isNew = aNew;
+    }
+
     private boolean isNew = true;
     private Date date= new Date();
     protected Conversation.Conversation_type conversationType= null;
@@ -100,7 +105,7 @@ public class Message extends AbstractParseObject implements AddParseObjects{
 
     }
 
-    public Message(JSONObject message){
+    public Message(JSONObject message, AddParseObject callback){
 
         /* to: username|username|username */
         try {
@@ -114,9 +119,9 @@ public class Message extends AbstractParseObject implements AddParseObjects{
             //from= message.getString("from");
 
             String arrayTo=  message.getString("to"); //getting list of userNames with | between each one
-            AddParseObject callback = null;
+            AddParseObject callback2 = null;
             for (String userName : new ArrayList<String>(Arrays.asList(arrayTo.split("#")))){
-                to.add(new User("","",userName, callback)); //again it's not important the userNames to be get fast
+                to.add(new User("","",userName, callback2)); //again it's not important the userNames to be get fast
             }
 
             text= message.getString("text");
@@ -127,12 +132,7 @@ public class Message extends AbstractParseObject implements AddParseObjects{
             e.printStackTrace();
         }
 
-        AddParseObject callback = new AddParseObject() { //after the message have object id you can save it locally
-            @Override
-            public void AddObject(AbstractParseObject msg) {
-                msg.CreateAndSaveNewParseObject();
-            }
-        };
+
         new GenerateFromExternalKey(this, callback);// this gets the Objectid within the Cloud
 
 
@@ -187,12 +187,10 @@ public class Message extends AbstractParseObject implements AddParseObjects{
     }
 
     public boolean isNew(){
-        return isNew();
+        return isNew;
     }
 
-    public void messageRead(){ //mark message as read
-        isNew=false;
-    }
+
     public String getDate() {
         return DATE_FORMAT.format(date);
     }

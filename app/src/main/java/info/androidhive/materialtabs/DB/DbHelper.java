@@ -68,7 +68,7 @@ public class DbHelper extends SQLiteOpenHelper{
         while (cursor.moveToNext()){
             Log.v("message", cursor.getString(0));
         }
-
+        db.close();
     }
     public static void ReadfromDB(){
         SQLiteDatabase db =new  DbHelper().getReadableDatabase();
@@ -96,12 +96,12 @@ public class DbHelper extends SQLiteOpenHelper{
                 sortOrder                                 // The sort order
         );
         cursor.moveToFirst();
-
-        Log.e("count of db"," "+ cursor.getCount());
+        db.close();
+        Log.v("count of db"," "+ cursor.getCount());
 
     }
     public static void InsertMessage(MessagesDB messagesDB){
-
+        Log.v("DBHelper","inserting message "+ messagesDB.Text);
         DbHelper helper = new DbHelper();
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -117,7 +117,7 @@ public class DbHelper extends SQLiteOpenHelper{
         db.insert(MessagesDB.Entries.TABLE_NAME,"NULL",values);
 
         helper.close();
-
+        db.close();
 
     }
 
@@ -141,7 +141,7 @@ public class DbHelper extends SQLiteOpenHelper{
 
 // How you want the results sorted in the resulting Cursor
         String sortOrder =
-                MessagesDB.Entries.ID + " DESC";
+                MessagesDB.Entries.DATE + " ASC";
 
 
         Cursor cursor = db.query(
@@ -176,18 +176,19 @@ public class DbHelper extends SQLiteOpenHelper{
 
 
     }
-    public static void ReadMessage(String messageID){
+    public static void ReadMessage(String messageID) {
         /**
          * this method takes the message object id and turn the message to not new in db
          */
-
+        if (messageID == null)
+            return;
         DbHelper helper = new DbHelper();
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
 
         values.put(MessagesDB.Entries.IS_NEW, 0);
 
-        db.update(MessagesDB.Entries.TABLE_NAME ,values, MessagesDB.Entries.ID + " = '"+ messageID+"'", null);
+        db.update(MessagesDB.Entries.TABLE_NAME, values, MessagesDB.Entries.ID + " = '" + messageID + "'", null);
 
         //db.insert(MessagesDB.Entries.TABLE_NAME,"NULL",values);
 
@@ -199,27 +200,31 @@ public class DbHelper extends SQLiteOpenHelper{
         };
 
 
-
-
         Cursor cursor = db.query(
                 MessagesDB.Entries.TABLE_NAME,  // The table to query
                 projection,                               // The columns to return
-                MessagesDB.Entries.ID +"=?",                                // The columns for the WHERE clause
-                new String[]{ messageID },                            // The values for the WHERE clause
+                MessagesDB.Entries.ID + "=?",                                // The columns for the WHERE clause
+                new String[]{messageID},                            // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
                 null                                 // The sort order
         );
         cursor.moveToFirst();
-
+        if (cursor.getCount() == 0)
+        {
+            helper.close();
+            db.close();
+            return;
+        }
         String external_key= cursor.getString(0);
 
         helper.close();
+        db.close();
 
 
 
         MyNotificationManager.RemoveNotification(external_key);
-
+        //todo test why it's not working
 
     }
 
@@ -278,10 +283,42 @@ public class DbHelper extends SQLiteOpenHelper{
         );
         cursor.moveToFirst();*/
 
-
+        db.close();
         return null;
     }
 
+
+    public static ArrayList<Message> getAllUnreadMessages(){
+        ArrayList<Message> messages= new ArrayList<>();
+
+
+        SQLiteDatabase db =new  DbHelper().getReadableDatabase();
+
+// Define a projection that specifies which columns from the database
+// you will actually use after this query.
+        String[] projection = {
+                MessagesDB.Entries.ID
+
+        };
+
+
+        Cursor cursor = db.query(
+                MessagesDB.Entries.TABLE_NAME,  // The table to query
+                projection,                               // The columns to return
+                MessagesDB.Entries.IS_NEW +" = ?",                                // The columns for the WHERE clause
+                new String[]{"1"},                            // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                 // The sort order
+        );
+
+        while (cursor.moveToNext()){
+            messages.add(new Message(cursor.getString(0), null));
+        }
+        db.close();
+        return messages;
+
+    }
 
 
 

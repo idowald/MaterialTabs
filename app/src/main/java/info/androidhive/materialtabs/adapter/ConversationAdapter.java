@@ -93,9 +93,12 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject {
             messageView.setText("");
         }
         else{
-            if (messagesDB.is_new >0)
+            if (messagesDB.is_new >0) {
                 messageView.setTextColor(Color.BLACK);
-            else
+            }
+            else{
+                messageView.setTextColor(Color.GRAY);
+            }
                 messageView.setText(messagesDB.Text);
         }
         rowView.setOnClickListener(new View.OnClickListener() {

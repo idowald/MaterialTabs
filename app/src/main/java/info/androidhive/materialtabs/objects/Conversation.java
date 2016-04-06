@@ -121,12 +121,7 @@ when want to open an old conversation:
 
     @Override
     public void AddObject(ParseObject object) {
-        readers.add(new User(object));
-        if (size == readers.size()) {
-            for (ParseArrayListListener listener : callbacks)
-                listener.AddList(readers);
-            callbacks.clear();
-        }
+        this.addReader(new User(object));
     }
 
     @Override
@@ -201,10 +196,13 @@ when want to open an old conversation:
     }
 
     public void getReaders(ParseArrayListListener<User> callback) {
-        if (callback!= null)
-            this.callbacks.add(callback);
+        if (callback== null)
+            return;
+
         if (size==readers.size())
             callback.AddList(readers);
+        else
+            this.callbacks.add(callback);
 
     }
     public void addReader(User user){

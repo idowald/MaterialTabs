@@ -89,7 +89,15 @@ public class MessagingService extends IntentService{
 
                 public void successCallback(String channel, Object message) {
 
-                    Message myMessage =new Message((JSONObject)message);
+                    AddParseObject callback = new AddParseObject() { //after the message have object id you can save it locally
+                        @Override
+                        public void AddObject(AbstractParseObject msg) {
+                            msg.CreateAndSaveNewParseObject();
+                            Log.v("MessagingService","saved instance");
+                        }
+                    };
+                    Message myMessage =new Message((JSONObject)message,callback);
+                    myMessage.setNew(true);
                     /*if (myMessage.isUrgent() | myMessage.getConversationType() == Conversation.Conversation_type.PRIVATE) {
                        ThrowNotification(myMessage);
                     }*/
@@ -164,6 +172,9 @@ public class MessagingService extends IntentService{
      */
 
     public void sendMessage(Message message, ArrayList<User> recipientsIds){
+
+        message.CreateAndSaveNewParseObject();
+
         //this binder is attached to sending messages class and it activated by it
         Log.v("sending"," SendMessage");
         /**
@@ -171,7 +182,6 @@ public class MessagingService extends IntentService{
          */
 
         String toArray="";
-
 
 
         /* Publish a message to channel */
@@ -192,7 +202,7 @@ public class MessagingService extends IntentService{
             });
         }
 
-        message.CreateAndSaveNewParseObject();
+
 
         Log.v("finished class service","");
 

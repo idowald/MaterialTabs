@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import info.androidhive.materialtabs.MessagingService;
 import info.androidhive.materialtabs.R;
@@ -163,7 +164,7 @@ public class MessagingActivity extends AppCompatActivity {
     public void populateMessageHistory(){
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Messages");
-        query.fromLocalDatastore();
+        //query.fromLocalDatastore();
         query.whereEqualTo("conversation",conversation.ToParseObject());
         query.orderByDescending("createdAt");
         query.findInBackground(new FindCallback<ParseObject>() {
@@ -186,6 +187,7 @@ public class MessagingActivity extends AppCompatActivity {
                         newMessage.getFrom(users);
 
                     }
+                    Log.v("populate"," finished");
 
                 } else {
                     e.printStackTrace();
@@ -259,7 +261,8 @@ public class MessagingActivity extends AppCompatActivity {
         boolean urgent = (conversation.IsPrivate()) ;
 
         Message message = new Message(MyUser,recipientsIds,messageBody,urgent,conversation);
-
+        message.setNew(false);
+        message.setExternal_key(new Date().toString()+ new Random().nextDouble());
         //Message m= new Message(conversation_name,Myusername,recipientsIds, messageBody, conversation_type,case_number, urgent);
         mService.sendMessage(message, recipientsIds);
         messageBodyField.setText("");
@@ -284,8 +287,8 @@ public class MessagingActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() { //TODO change to pause? or remove it
-        super.onStop();
+    protected void onDestroy() { //TODO change to pause? or remove it
+        super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
 
         if (mBound) {
@@ -314,8 +317,10 @@ public class MessagingActivity extends AppCompatActivity {
 /* this is to read bundles from intents from notification or from main activity listview*/
    public void ReadBundle(){
        Bundle b= getIntent().getExtras();
-        String conversation_str =(String)b.getSerializable("conversation");
-       conversation= (Conversation) sendingObjects.getElement(conversation_str);
+       conversation = (Conversation) b.getSerializable("conversation");
+
+       // String conversation_str =(String)b.getSerializable("conversation");
+      // conversation= (Conversation) sendingObjects.getElement(conversation_str);
        if (conversation.IsCASE())
        {
            ParseQuery<ParseObject> queryCase= new ParseQuery<ParseObject>("Cases");

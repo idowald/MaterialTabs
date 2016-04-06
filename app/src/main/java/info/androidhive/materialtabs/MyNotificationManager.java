@@ -25,6 +25,7 @@ import info.androidhive.materialtabs.DB.MySharedPrefrences;
 import info.androidhive.materialtabs.activity.MainActivity;
 import info.androidhive.materialtabs.activity.MessagingActivity;
 import info.androidhive.materialtabs.activity.SettingsActivity;
+import info.androidhive.materialtabs.fragments.PrivateChatTab;
 import info.androidhive.materialtabs.objects.Conversation;
 import info.androidhive.materialtabs.objects.Duty;
 import info.androidhive.materialtabs.objects.Message;
@@ -202,12 +203,13 @@ public class MyNotificationManager {
 
 
     }
-    private static void FireNotification(Message message){
-        Context context= MyApplication.getAppContext();
-        String notificationText= "";
+    static Intent resultIntent = null;
+    private static void FireNotification( final Message message){
+        final Context context= MyApplication.getAppContext();
+
         boolean ismultiply = isMultiplyConversation();
 
-        Intent resultIntent = null;
+         resultIntent = null;
         if (ismultiply){
             /*
             pending intent to mainactivity
@@ -215,7 +217,7 @@ public class MyNotificationManager {
              resultIntent = new Intent(context, MainActivity.class);
 
 
-
+            String notificationText= "";
              notificationText = "you've got "+ messagesMap.size() + " new messages!";
             PendingIntent resultPendingIntent =
                     PendingIntent.getActivity(
@@ -240,30 +242,40 @@ public class MyNotificationManager {
 
 
         } else{
+
+            message.getConversation(new AddParseObject() {
+                @Override
+                public void AddObject(AbstractParseObject object) {
+                    Conversation conversation = (Conversation) object;
+                    resultIntent = PrivateChatTab.prepareIntent(context, conversation);
+                    PendingIntent resultPendingIntent =
+                            PendingIntent.getActivity(
+                                    context,
+                                    0,
+                                    resultIntent,
+                                    PendingIntent.FLAG_UPDATE_CURRENT
+                            );
+
+                    message.getFrom(new NotifyCallback( resultPendingIntent,message.getText())) ;
+                }
+            });
             /*
             pending intent to exact messagingactivity
              */
-            resultIntent = new Intent(context, MessagingActivity.class);
 
-            Bundle bundle = new Bundle();
-            bundle.putString("conversationObjectId",message.getConversationObjectId());
+
+           // Bundle bundle = new Bundle();
+            //bundle.putString("conversationObjectId",message.getConversationObjectId());
 
             // resultIntent.putExtra("conversationObjectId", myMessage.getConversationObjectId());
             //bundle.putSerializable("to", myMessage.getTo());
             // resultIntent.putExtra("recipients_ids", message.getTo());
 // Because clicking the notification opens a new ("special") activity, there's
 // no need to create an artificial back stack.
-            resultIntent.putExtras(bundle);
+            //resultIntent.putExtras(bundle);
 
-            PendingIntent resultPendingIntent =
-                    PendingIntent.getActivity(
-                            context,
-                            0,
-                            resultIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT
-                    );
 
-            message.getFrom(new NotifyCallback( resultPendingIntent,notificationText)) ;
+
 
 
         }

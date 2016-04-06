@@ -133,17 +133,20 @@ public class PrivateChatTab extends Fragment{
     //open a conversation with one person
    static public void openConversation(Context context, Conversation conversation) {
 
+       context.startActivity(prepareIntent( context,  conversation));
+
+
+    }
+    static public Intent prepareIntent(Context context, Conversation conversation){
         Intent intent = new Intent(context, MessagingActivity.class);
-       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
         Bundle bundle = new Bundle();
-        sendingObjects.myObject.put(conversation.getConversationName(), conversation);
-        bundle.putSerializable("conversation", conversation.getConversationName());
+        //sendingObjects.myObject.put(conversation.getConversationName(), conversation);
+        bundle.putSerializable("conversation", conversation);
         //TODO throw error at start if it's not instanciated
         bundle.putSerializable("my_user", currentUserId);
         intent.putExtras(bundle);
-       context.startActivity(intent);
-
-
+        return intent;
     }
 
 }
