@@ -36,12 +36,25 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject {
      */
     private Context context= null;
 
-    private TreeSet<Touple> values = new TreeSet<Touple>(); //list contains on 0 conversation on 1 the messaageDB
+    private ArrayList<Touple> values = new ArrayList<Touple>(); //list contains on 0 conversation on 1 the messaageDB
+    private Comparator<Touple> comparator = new Comparator<Touple>() {
+        @Override
+        public int compare(Touple lhs, Touple rhs) {
+            MessagesDB left_message = lhs.getMessagesDB();
+            MessagesDB right_message = rhs.getMessagesDB();
+            if (left_message == null)
+                return 1;
+            if (right_message == null)
+                return -1;
+
+            return -left_message.date.compareTo(right_message.date);
+        }
+    };
     private User my_user = null;
 
     public ConversationAdapter(Context context , User my_user) {
         this.context = context;
-        this.values = new TreeSet<>();
+        //this.values = new ArrayList<>();
         this.my_user = my_user;
     }
 
@@ -94,6 +107,7 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject {
         }
         else{
             if (messagesDB.is_new >0) {
+                userView.setTextColor(Color.BLACK);
                 messageView.setTextColor(Color.BLACK);
             }
             else{
@@ -147,6 +161,8 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject {
         Touple touple = new Touple(conversation, messagesDB);
 
         values.add(touple);
+
+        Collections.sort(values,comparator);
         notifyDataSetChanged();
     }
 

@@ -11,6 +11,7 @@ import android.widget.TextView;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -45,11 +46,12 @@ public class ConversationMessagesAdapter extends BaseAdapter {
             return result;
         }
     };
-    private TreeSet<Message> values= new TreeSet<Message>();
+    private ArrayList<Message> values = new ArrayList<>();
+    //private TreeSet<Message> values= new TreeSet<Message>();
 
     private  User user= null;
 
-    public ConversationMessagesAdapter(Context context,TreeSet<Message> values,User my_user) {
+    public ConversationMessagesAdapter(Context context,ArrayList<Message> values,User my_user) {
 
         this.context = context;
         this.values = values;
@@ -168,6 +170,9 @@ public class ConversationMessagesAdapter extends BaseAdapter {
         Log.v("adding message", message.toString());
         values.add(message);
         users.put(user.getUserName(),user);
+
+        Collections.sort(values, comparator);
+
 
         notifyDataSetChanged(); //todo to make faster with parent.getChildAt
 

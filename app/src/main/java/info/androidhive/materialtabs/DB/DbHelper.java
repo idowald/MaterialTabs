@@ -141,8 +141,7 @@ public class DbHelper extends SQLiteOpenHelper{
 
 // How you want the results sorted in the resulting Cursor
         String sortOrder =
-                MessagesDB.Entries.DATE + " ASC";
-
+                MessagesDB.Entries.DATE + " DESC";
 
         Cursor cursor = db.query(
                 MessagesDB.Entries.TABLE_NAME,  // The table to query
@@ -153,7 +152,11 @@ public class DbHelper extends SQLiteOpenHelper{
                 null,                                     // don't filter by row groups
                 sortOrder                                 // The sort order
         );
-        cursor.moveToFirst();
+     //  Cursor cursor = db.rawQuery("select * from "+ MessagesDB.Entries.TABLE_NAME +" where "+
+      //          MessagesDB.Entries.CONVERSATION_ID+ "= '"+ conversation_id+"'" + " order by "+MessagesDB.Entries.DATE +" DESC",null);
+        if (cursor.moveToNext()){
+            //return null;
+        }
         if ( cursor.getCount() ==0)
             return null; //no messages yet
         MessagesDB messagesDB = new MessagesDB();
@@ -228,6 +231,21 @@ public class DbHelper extends SQLiteOpenHelper{
 
     }
 
+    public static void TestDB(){
+        SQLiteDatabase db =new  DbHelper().getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("select * from "+ MessagesDB.Entries.TABLE_NAME +" where "+
+                MessagesDB.Entries.CONVERSATION_ID+ "= 'NJJkVkk5Cl'" + " order by "+MessagesDB.Entries.DATE +" DESC",null);
+        Log.v("TestDB","starting  \n");
+        while (cursor.moveToNext()){
+            for (int i=0; i<7; i++)
+                Log.v("TestDB"+ i,cursor.getString(i));
+
+        }
+        Log.v("TestDB","finished  \n");
+
+        db.close();
+    }
     public static boolean isSilenced(String Conversation_id){
 
         SQLiteDatabase db =new  DbHelper().getReadableDatabase();

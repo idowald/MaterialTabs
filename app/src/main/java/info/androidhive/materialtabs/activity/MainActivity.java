@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity  {
 
        // DbHelper.TestMessages();
         //startActivity(new Intent(this, UserProfileActivity.class));
-
+        DbHelper.TestDB();
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity  {
         viewPager = (ViewPager) findViewById(R.id.viewpager);
 
         setUser();
+
         if (my_user == null)
             return;
         //CreatingNewPrivateConversations();
@@ -92,7 +93,7 @@ public class MainActivity extends AppCompatActivity  {
 
 
 
-        DbHelper.ReadfromDB();
+        //DbHelper.ReadfromDB();
         ParseQuery<ParseObject> innerquery = ParseQuery.getQuery("Users");
 
         innerquery.whereEqualTo("userName",my_user.getUserName());

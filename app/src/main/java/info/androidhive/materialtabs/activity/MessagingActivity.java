@@ -93,7 +93,7 @@ public class MessagingActivity extends AppCompatActivity {
 
     //for adapter
 
-    TreeSet<Message> values = new TreeSet<Message>();
+    ArrayList<Message> values = new ArrayList<Message>();
     protected void onCreate(Bundle savedInstanceState) {
         // this program will get the intent with a code: http://stackoverflow.com/questions/14695537/android-update-activity-ui-from-service
 
