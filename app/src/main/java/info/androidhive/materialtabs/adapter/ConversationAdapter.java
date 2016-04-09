@@ -172,7 +172,7 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject {
     }
 
 
-    class Touple implements  Comparable<Touple>{
+    class Touple {
         Conversation conversation = null;
         MessagesDB messagesDB = null;
 
@@ -197,19 +197,17 @@ public class ConversationAdapter extends BaseAdapter implements AddParseObject {
             this.messagesDB = messagesDB;
         }
 
-        @Override
-        public int compareTo(Touple another) {
+    }
+    public void addMessage(Message message){
+        String conversation_id= message.getConversationObjectId();
 
+        for (Touple touple : values){
+            if (touple.getConversation().getConversationObjectId().matches(conversation_id)){
 
-            if ( this.getMessagesDB()== null) {
-                return 1;
-
+                touple.setMessagesDB(MessagesDB.convertMessageToMessageDB(message));
+                notifyDataSetChanged();
             }
-            if ( another.getMessagesDB()== null) {
-                return -1;
-            }
-            return this.getMessagesDB().date.compareTo(another.getMessagesDB().date);
-
         }
+
     }
 }

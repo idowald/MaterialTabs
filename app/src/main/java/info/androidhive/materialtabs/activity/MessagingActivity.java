@@ -80,6 +80,7 @@ public class MessagingActivity extends AppCompatActivity {
     private BroadcastReceiver receiver = null;
     public static final String BROADCAST_ACTION = "info.androidhive.tabsswipe.MessagingActivity.Receiver";
 
+
     private Conversation conversation = null;
 
     private ArrayList<User> recipientsIds = new ArrayList<User>(); //the other user you speak with

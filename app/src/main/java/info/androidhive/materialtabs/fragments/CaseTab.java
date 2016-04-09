@@ -1,5 +1,7 @@
 package info.androidhive.materialtabs.fragments;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -25,6 +27,7 @@ import info.androidhive.materialtabs.activity.MessagingActivity;
 import info.androidhive.materialtabs.activity.NewCaseActivity;
 import info.androidhive.materialtabs.adapter.ConversationAdapter;
 import info.androidhive.materialtabs.objects.Conversation;
+import info.androidhive.materialtabs.objects.Message;
 import info.androidhive.materialtabs.objects.User;
 import info.androidhive.materialtabs.objects.sendingObjects;
 
@@ -35,6 +38,9 @@ public class CaseTab extends Fragment{
     private ConversationAdapter conversationArrayAdapter = null;
     private ArrayList<Conversation> conversations = new ArrayList<Conversation>();
     private ListView conversationListView = null;
+
+
+
     public CaseTab(User current_user) {
         this.current_user = current_user;
     }
@@ -64,11 +70,19 @@ public class CaseTab extends Fragment{
                 startActivity(intent);
             }
         });
-        setConversationsList();
+        //setConversationsList();
         return rootview;
 
     }
-    private void setConversationsList() {
+    @Override
+    public void onResume() {
+        super.onResume();
+        setConversationsList();
+    }
+    public void addMessage(Message message) {
+        conversationArrayAdapter.addMessage(message);
+    }
+    public void setConversationsList() {
         conversations.clear();
         conversationArrayAdapter =
                 new ConversationAdapter(getActivity().getApplicationContext(), current_user);
@@ -124,5 +138,6 @@ public class CaseTab extends Fragment{
         intent.putExtras(bundle);
         startActivity(intent);
     }
+
 
 }

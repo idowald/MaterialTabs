@@ -1,7 +1,10 @@
 package info.androidhive.materialtabs.activity;
 
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -9,6 +12,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -48,6 +52,16 @@ public class MainActivity extends AppCompatActivity  {
     private TabLayout tabLayout;
     private ViewPager viewPager;
 
+
+
+    private BroadcastReceiver receiver = null ; // listen to the service and update tabs when needed
+    public static final String NEW_MESSAGE_RECEIVER ="info.androidhive.tabsswipe.MainActivity.Receiver";
+    public static final String MESSAGE_INTENT = "MESSAGE";
+    private ProfileTab profileTab = null;
+    private PrivateChatTab privateChatTab = null;
+    private CaseTab caseTab = null;
+    private GroupTab groupTab = null;
+
     private int[] tabIcons = {
             R.mipmap.ic_profile,
             R.mipmap.ic_private,
@@ -62,6 +76,7 @@ public class MainActivity extends AppCompatActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_icon_text_tabs);
+        InitReceiver();
 
        // DbHelper.TestMessages();
         //startActivity(new Intent(this, UserProfileActivity.class));
@@ -242,12 +257,16 @@ public class MainActivity extends AppCompatActivity  {
         String[]  tabs_titles = {getResources().getString(R.string.tab0_main), getResources().getString(R.string.tab1_private),
                 getResources().getString(R.string.tab2_case),
                 getResources().getString(R.string.tab3_group) };
+        profileTab = new ProfileTab(my_user);
+        privateChatTab = new PrivateChatTab(my_user);
+        caseTab = new CaseTab(my_user);
+        groupTab = new GroupTab(my_user);
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new ProfileTab(my_user), tabs_titles[0]);
-        adapter.addFrag(new PrivateChatTab(my_user), tabs_titles[1]);
-        adapter.addFrag(new CaseTab(my_user), tabs_titles[2]);
-        adapter.addFrag(new GroupTab(my_user), tabs_titles[3]);
+        adapter.addFrag(profileTab, tabs_titles[0]);
+        adapter.addFrag(privateChatTab, tabs_titles[1]);
+        adapter.addFrag(caseTab, tabs_titles[2]);
+        adapter.addFrag(groupTab, tabs_titles[3]);
 
         viewPager.setAdapter(adapter);
     }
@@ -342,9 +361,47 @@ for later use only
                         }
                     }
                 }else{
-                    e.printStackTrace();
+                    Log.e("E",e.getMessage());
                 }
             }
         });
+    }
+
+    private void InitReceiver(){
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(final Context context, Intent intent) {
+            final  Message message=(Message) intent.getSerializableExtra(MESSAGE_INTENT);
+                message.getConversation(new AddParseObject() {
+                    @Override
+                    public void AddObject(AbstractParseObject object) {
+                        Conversation conversation= (Conversation) object;
+                        if (conversation.IsCASE()){
+                            caseTab.addMessage(message);
+                        } else if(conversation.IsGROUP()){
+                            groupTab.addMessage(message);
+                        }else{
+                            privateChatTab.addMessage(message);
+                        }
+                    }
+                });
+            }
+        };
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+           /* this is for getting intents from the service */
+        LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
+                new IntentFilter(NEW_MESSAGE_RECEIVER)
+        );
     }
 }

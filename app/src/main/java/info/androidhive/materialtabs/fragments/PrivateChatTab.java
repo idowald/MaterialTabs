@@ -26,6 +26,7 @@ import info.androidhive.materialtabs.activity.GroupProfileActivity;
 import info.androidhive.materialtabs.activity.MessagingActivity;
 import info.androidhive.materialtabs.adapter.ConversationAdapter;
 import info.androidhive.materialtabs.objects.Conversation;
+import info.androidhive.materialtabs.objects.Message;
 import info.androidhive.materialtabs.objects.User;
 import info.androidhive.materialtabs.objects.sendingObjects;
 
@@ -33,6 +34,11 @@ import info.androidhive.materialtabs.objects.sendingObjects;
 public class PrivateChatTab extends Fragment{
    static private User currentUserId = null;
     private ConversationAdapter conversationArrayAdapter = null;
+
+    public void addMessage(Message message) {
+        conversationArrayAdapter.addMessage(message);
+    }
+
     private ArrayList<Conversation> conversations = new ArrayList<Conversation>();
     private ListView conversationListView = null;
     private ProgressDialog progress = null;
@@ -59,7 +65,7 @@ public class PrivateChatTab extends Fragment{
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_private_chat, container, false);
 
-        setConversationsList();
+        //setConversationsList();
         return rootView;
     }
 
@@ -73,7 +79,14 @@ public class PrivateChatTab extends Fragment{
 
 
     }
-    private void setConversationsList() {
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setConversationsList();
+    }
+
+    public void setConversationsList() {
         conversations.clear();
         conversationArrayAdapter =
                 new ConversationAdapter(getActivity().getApplicationContext(), currentUserId);

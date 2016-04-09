@@ -27,6 +27,7 @@ import java.util.Date;
 
 import info.androidhive.materialtabs.DB.DbHelper;
 import info.androidhive.materialtabs.DB.MessagesDB;
+import info.androidhive.materialtabs.activity.MainActivity;
 import info.androidhive.materialtabs.activity.MessagingActivity;
 import info.androidhive.materialtabs.objects.Conversation;
 import info.androidhive.materialtabs.objects.Message;
@@ -72,9 +73,6 @@ public class MessagingService extends IntentService{
 
     @Override
     public void onCreate() {
-
-
-
 
         super.onCreate();
         Myusername = getSharedPreferences("userdetails", MODE_PRIVATE).getString("username","");
@@ -160,7 +158,25 @@ public class MessagingService extends IntentService{
         intent.putExtras(bundle);
         broadcast.sendBroadcast(intent);
 
+        updateTabs(message);
+
+
+
         Log.v("t", message.toString());
+    }
+
+    private  void updateTabs(Message message){
+        /*
+        update mainacitivy tabs for new messages (incoming and outgoing)
+         */
+        Intent intent = new Intent(MainActivity.NEW_MESSAGE_RECEIVER);
+        // You can also include some extra data.
+        Bundle bundle = new Bundle();
+        //this guy sending in bundle the intent it wants to the activity
+        bundle.putSerializable(MainActivity.MESSAGE_INTENT, message);
+        intent.putExtras(bundle);
+        broadcast.sendBroadcast(intent);
+
     }
     @Override
     public IBinder onBind(Intent intent) {
@@ -172,6 +188,7 @@ public class MessagingService extends IntentService{
      */
 
     public void sendMessage(Message message, ArrayList<User> recipientsIds){
+        updateTabs(message);
 
         message.CreateAndSaveNewParseObject();
 

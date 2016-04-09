@@ -22,6 +22,7 @@ import info.androidhive.materialtabs.R;
 import info.androidhive.materialtabs.activity.MessagingActivity;
 import info.androidhive.materialtabs.adapter.ConversationAdapter;
 import info.androidhive.materialtabs.objects.Conversation;
+import info.androidhive.materialtabs.objects.Message;
 import info.androidhive.materialtabs.objects.User;
 import info.androidhive.materialtabs.objects.sendingObjects;
 
@@ -43,16 +44,24 @@ public class GroupTab extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        setConversationsList();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        setConversationsList();
+        //setConversationsList();
         return inflater.inflate(R.layout.fragment_group_chat, container, false);
 
     }
-    private void setConversationsList() {
+    public void addMessage(Message message) {
+        conversationArrayAdapter.addMessage(message);
+    }
+    public void setConversationsList() {
         conversations.clear();
         conversationArrayAdapter =
                 new ConversationAdapter(getActivity().getApplicationContext(), current_user);
